@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.booklog.booklogbackend.mapper.RefreshTokenMapper">
+    <insert id="save">
+        INSERT INTO refresh_tokens (user_id, token, expiry_date)
+        VALUES (#{userId}, #{token}, #{expiryDate})
+    </insert>
+
+    <select id="findByUserId" resultType="string">
+        SELECT token
+        FROM refresh_tokens
+        WHERE user_id = #{userId}
+    </select>
+
+    <delete id="deleteByUserId">
+        DELETE FROM refresh_tokens
+        WHERE user_id = #{userId}
+    </delete>
+</mapper>
