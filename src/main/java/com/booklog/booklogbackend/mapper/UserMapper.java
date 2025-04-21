@@ -1,12 +1,12 @@
 package com.booklog.booklogbackend.mapper;
 
-import com.booklog.booklogbackend.Model.vo.Users;
+import com.booklog.booklogbackend.Model.vo.UserVO;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface UsersMapper {
-    void insertUser(Users user);
-    Users findByEmail(String email);
+public interface UserMapper {
+    void insertUser(UserVO userVO);
+    UserVO findByEmail(String email);
     boolean existsByEmail(String email);
     boolean existsByNickname(String nickname);
 }
