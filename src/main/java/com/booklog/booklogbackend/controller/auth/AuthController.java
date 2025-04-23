@@ -4,10 +4,7 @@ import com.booklog.booklogbackend.Model.vo.UserVO;
 import com.booklog.booklogbackend.service.auth.AuthService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -21,6 +18,11 @@ public class AuthController {
         this.authService = authService;
     }
 
+//    @PostMapping("/check-email")
+//    public ResponseEntity<?> checkEmailInUse(@RequestParam("email") String email) {
+//        // 이메일 중복 체크 로직 구현
+//        return ResponseEntity.ok(new ApiResponse(true, emailExists ? "이미 사용중인 이메일입니다." : ""));
+//    }
     /**
      * 사용자 회원 가입
      * @param userVO : Frontend에서 사용자 Form 입력 정보

@@ -19,8 +19,8 @@ public class EmailVerificationController {
         this.emailVerificationService = emailVerificationService;
     }
 
-    @PostMapping("email-send")
-    public ResponseEntity<String> sendVerificationCode(@RequestBody EmailVerificationRequest request){
-
-    }
+//    @PostMapping("email-send")
+//    public ResponseEntity<String> sendVerificationCode(@RequestBody EmailVerificationRequest request){
+//
+//    }
 }

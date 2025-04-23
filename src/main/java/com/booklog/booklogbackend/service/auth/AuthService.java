@@ -29,21 +29,21 @@ public class AuthService {
     }
 
     @Transactional
-    public void register(UserVO userVO) {
-        log.debug("Registering user: {}", userVO.getEmail());
+    public void register(UserVO user) {
+        log.debug("Registering user: {}", user.getEmail());
         try {
-            boolean exists = userMapper.existsByEmail(userVO.getEmail());
-            log.debug("Email exists: {} -> {}", userVO.getEmail(), exists);
+            boolean exists = userMapper.existsByEmail(user.getEmail());
+            log.debug("Email exists: {} -> {}", user.getEmail(), exists);
             if (exists) {
-                log.debug("Email already exists: {}", userVO.getEmail());
+                log.debug("Email already exists: {}", user.getEmail());
                 throw new IllegalArgumentException("Email already exists");
             }
-            userVO.setPassword(passwordEncoder.encode(userVO.getPassword()));
-            log.debug("Inserting user: {}", userVO.getEmail());
-            userMapper.insertUser(userVO);
-            log.debug("User inserted: {}", userVO.getEmail());
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            log.debug("Inserting user: {}", user.getEmail());
+            userMapper.insertUser(user);
+            log.debug("User inserted: {}", user.getEmail());
         } catch (Exception e) {
-            log.error("Error in register for email {}: {}", userVO.getEmail(), e.getMessage(), e);
+            log.error("Error in register for email {}: {}", user.getEmail(), e.getMessage(), e);
             throw new RuntimeException("Failed to register user: " + e.getMessage(), e);
         }
     }
@@ -52,17 +52,18 @@ public class AuthService {
     public Map<String, String> login(String email, String password) {
         log.debug("Logging in user: {}", email);
         try {
-            UserVO userVO = userMapper.findByEmail(email);
-            if (userVO == null || !passwordEncoder.matches(password, userVO.getPassword())) {
+            UserVO loginUser = userMapper.findByEmail(email);
+            if (loginUser == null || !passwordEncoder.matches(password, loginUser.getPassword())) {
                 log.debug("Invalid email or password: {}", email);
                 throw new IllegalArgumentException("Invalid email or password");
             }
 
             String accessToken = jwtTokenProvider.generateAccessToken(email);
-            String refreshToken = jwtTokenProvider.generateRefreshToken(email);
+            String refreshToken = jwtTokenProvider.generateRefreshToken();
+            String tokenId = jwtTokenProvider.getTokenIdFromToken(refreshToken);
 
-            refreshTokenMapper.deleteByUserId(userVO.getId());
-            refreshTokenMapper.save(userVO.getId(), refreshToken, new Date(System.currentTimeMillis() + 604800000));
+            refreshTokenMapper.deleteByUserId(loginUser.getUserId());
+            refreshTokenMapper.save(loginUser.getUserId(), tokenId, refreshToken, new Date(System.currentTimeMillis() + 604800000));
 
             log.debug("Login successful for email: {}", email);
             Map<String, String> tokens = new HashMap<>();
@@ -76,21 +77,30 @@ public class AuthService {
     }
 
     public String refreshToken(String refreshToken) {
-    if (!jwtTokenProvider.validateToken(refreshToken)) {
-        throw new IllegalArgumentException("Invalid refresh token!");
-    }
+        try {
+            if (!jwtTokenProvider.validateToken(refreshToken)) {
+                log.debug("Invalid refresh token");
+                throw new IllegalArgumentException("Invalid refresh token");
+            }
 
-    String email = jwtTokenProvider.getEmailFromToken(refreshToken);
-    UserVO userVO = userMapper.findByEmail(email);
-    if (userVO == null) {
-        throw new IllegalArgumentException("User not found!");
-    }
+            String tokenId = jwtTokenProvider.getTokenIdFromToken(refreshToken);
+            String storedToken = refreshTokenMapper.findTokenByTokenId(tokenId);
+            if (storedToken == null || !refreshToken.equals(storedToken)) {
+                log.debug("Refresh token mismatch or not found for tokenId: {}", tokenId);
+                throw new IllegalArgumentException("Refresh token mismatch");
+            }
 
-    String storedToken = refreshTokenMapper.findByuserId(userVO.getId());
-    if( !refreshToken.equals(storedToken)) {
-        throw new IllegalArgumentException("Refresh token mismatch!");
-    }
-    return jwtTokenProvider.generateAccessToken(email);
+            UserVO user = userMapper.findByTokenId(tokenId); // 새 메서드 필요
+            if (user == null) {
+                log.debug("User not found for tokenId: {}", tokenId);
+                throw new IllegalArgumentException("User not found");
+            }
+
+            return jwtTokenProvider.generateAccessToken(user.getEmail());
+        } catch (Exception e) {
+            log.error("Error refreshing token: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to refresh token: " + e.getMessage(), e);
+        }
     }
 
     public void logout(Long userId) {

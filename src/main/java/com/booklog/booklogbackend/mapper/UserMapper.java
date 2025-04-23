@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 public interface UserMapper {
     void insertUser(UserVO userVO);
     UserVO findByEmail(String email);
+    UserVO findByTokenId(String tokenId);
     boolean existsByEmail(String email);
     boolean existsByNickname(String nickname);
 }

@@ -12,6 +12,13 @@
         WHERE email = #{email}
     </select>
 
+    <select id="findByTokenId" parameterType="string" resultType="com.booklog.booklogbackend.Model.vo.UserVO">
+        SELECT u.id, u.email, u.password, u.nickname
+        FROM users u
+                 JOIN refresh_tokens rt ON u.id = rt.user_id
+        WHERE rt.token_id = #{tokenId}
+    </select>
+
     <select id="existsByEmail" parameterType="string" resultType="boolean">
         SELECT COUNT(*) > 0
         FROM user
