@@ -3,8 +3,10 @@ package com.booklog.booklogbackend.controller.auth;
 import com.booklog.booklogbackend.Model.vo.UserVO;
 import com.booklog.booklogbackend.service.auth.AuthService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 
@@ -18,11 +20,34 @@ public class AuthController {
         this.authService = authService;
     }
 
-//    @PostMapping("/check-email")
-//    public ResponseEntity<?> checkEmailInUse(@RequestParam("email") String email) {
-//        // 이메일 중복 체크 로직 구현
-//        return ResponseEntity.ok(new ApiResponse(true, emailExists ? "이미 사용중인 이메일입니다." : ""));
-//    }
+    /**
+     * 이메일 중복 확인
+     * @param email
+     * @return
+     */
+    @PostMapping("/check-email")
+    public ResponseEntity<String> checkEmailInUse(@RequestParam("email") String email) {
+        if (authService.emailAlreadyExists(email)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("이미 사용중인 이메일입니다");
+        }
+        return ResponseEntity.ok("사용 가능한 이메일입니다");
+    }
+
+    /**
+     * 이메일 중복 확인
+     * @param nickname
+     * @return
+     */
+    @PostMapping("/check-nickname")
+    public ResponseEntity<String> checkNicknameInUse(@RequestParam("nickname") String nickname) {
+        if (authService.nicknameAlreadyExists(nickname)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("이미 사용중인 닉네임입니다");
+        }
+        return ResponseEntity.ok("사용 가능한 닉네임입니다");
+    }
+
     /**
      * 사용자 회원 가입
      * @param userVO : Frontend에서 사용자 Form 입력 정보

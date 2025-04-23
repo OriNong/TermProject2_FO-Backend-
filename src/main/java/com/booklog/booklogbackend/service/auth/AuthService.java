@@ -106,5 +106,13 @@ public class AuthService {
     public void logout(Long userId) {
         refreshTokenMapper.deleteByUserId(userId);
     }
+
+    public boolean emailAlreadyExists(String email) {
+        return userMapper.existsByEmail(email);
+    }
+
+    public boolean nicknameAlreadyExists(String nickname) {
+        return userMapper.existsByNickname(nickname);
+    }
 }
 
