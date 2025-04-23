@@ -1,5 +1,6 @@
 package com.booklog.booklogbackend.controller.auth;
 
+import com.booklog.booklogbackend.Model.response.ApiResponse;
 import com.booklog.booklogbackend.Model.vo.UserVO;
 import com.booklog.booklogbackend.service.auth.AuthService;
 import lombok.extern.slf4j.Slf4j;
@@ -26,12 +27,10 @@ public class AuthController {
      * @return
      */
     @PostMapping("/check-email")
-    public ResponseEntity<String> checkEmailInUse(@RequestParam("email") String email) {
-        if (authService.emailAlreadyExists(email)) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("이미 사용중인 이메일입니다");
-        }
-        return ResponseEntity.ok("사용 가능한 이메일입니다");
+    public ResponseEntity<ApiResponse> checkEmailInUse(@RequestParam("email") String email) {
+
+        boolean emailExists = authService.emailAlreadyExists(email);
+        return ResponseEntity.ok(new ApiResponse(true, emailExists ? "이미 사용중인 이메일입니다." : "사용 가능한 이메일입니다"));
     }
 
     /**
@@ -40,12 +39,10 @@ public class AuthController {
      * @return
      */
     @PostMapping("/check-nickname")
-    public ResponseEntity<String> checkNicknameInUse(@RequestParam("nickname") String nickname) {
-        if (authService.nicknameAlreadyExists(nickname)) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("이미 사용중인 닉네임입니다");
-        }
-        return ResponseEntity.ok("사용 가능한 닉네임입니다");
+    public ResponseEntity<ApiResponse> checkNicknameInUse(@RequestParam("nickname") String nickname) {
+
+        boolean nicknameExists = authService.nicknameAlreadyExists(nickname);
+        return ResponseEntity.ok(new ApiResponse(true, nicknameExists ? "이미 사용중인 닉네임입니다." : "사용 가능한 닉네임입니다"));
     }
 
     /**

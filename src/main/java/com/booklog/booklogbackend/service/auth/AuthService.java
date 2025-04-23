@@ -32,11 +32,17 @@ public class AuthService {
     public void register(UserVO user) {
         log.debug("Registering user: {}", user.getEmail());
         try {
-            boolean exists = userMapper.existsByEmail(user.getEmail());
-            log.debug("Email exists: {} -> {}", user.getEmail(), exists);
-            if (exists) {
+            boolean existsByEmail = userMapper.existsByEmail(user.getEmail());
+            log.debug("Email exists: {} -> {}", user.getEmail(), existsByEmail);
+            if (existsByEmail) {
                 log.debug("Email already exists: {}", user.getEmail());
                 throw new IllegalArgumentException("Email already exists");
+            }
+            boolean existsByNickname = userMapper.existsByNickname(user.getNickname());
+            log.debug("Nickname exists: {} -> {}", user.getNickname(), existsByNickname);
+            if (existsByNickname) {
+                log.debug("Nickname already exists: {}", user.getNickname());
+                throw new IllegalArgumentException("Nickname already exists");
             }
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             log.debug("Inserting user: {}", user.getEmail());
