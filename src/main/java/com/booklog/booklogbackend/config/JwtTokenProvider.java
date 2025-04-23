@@ -31,6 +31,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    // 고유 식별자로 사용자 refreshToken 생성
     public String generateRefreshToken() {
         String refreshTokenID = UUID.randomUUID().toString();                           // 고유 식별자 생성
         return Jwts.builder()
