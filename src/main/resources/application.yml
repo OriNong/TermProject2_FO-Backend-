@@ -36,6 +36,10 @@ jwt:
   secret: your-very-secure-secret-key-1234567890abcdef
   access-token-expiration: 180000 # 30분 (액세스 토큰)
   refresh-token-expiration: 604800000 # 7일 (리프레시 토큰)
+# 네이버 책 검색 api 설정
+naver:
+  client-id: ${NAVER_CLIENT_ID}
+  client-secret: ${NAVER_CLIENT_SECRET}
 
 # 로그 설정
 logging:
