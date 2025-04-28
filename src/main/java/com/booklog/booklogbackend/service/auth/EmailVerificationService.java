@@ -20,6 +20,13 @@ public class EmailVerificationService {
 
     private static final String EMAIL_VERIFICATION_PREFIX = "email:verify:";
 
+    // 인증 코드 만료 시간
+    private static final int CODE_TTL = 5;
+
+    /**
+     * 인증 코드 발송
+     * @param email: 회원가입하려는 이메일
+     */
     public void sendVerificationCode(String email) {
         String code = generateVerificationCode();
         try {
@@ -31,7 +38,7 @@ public class EmailVerificationService {
             mailSender.send(message);
 
             // Redis에 저장 (5분 유효)
-            redisTemplate.opsForValue().set(EMAIL_VERIFICATION_PREFIX + email, code, 5, TimeUnit.MINUTES);
+            redisTemplate.opsForValue().set(EMAIL_VERIFICATION_PREFIX + email, code, CODE_TTL, TimeUnit.MINUTES);
 
             log.info("인증 코드 발송 및 Redis 저장 완료 - 이메일: {}", email);
         } catch (Exception e) {
@@ -40,6 +47,12 @@ public class EmailVerificationService {
         }
     }
 
+    /**
+     * 발송된 이메일 코드와 사용자 입력 인증 코드 일치 여부 확인
+     * @param email: 인증 코드 수신 이메일 주소
+     * @param inputCode: 사용자 입력 인증 코드
+     * @return
+     */
     public boolean verifyCode(String email, String inputCode) {
         String key = EMAIL_VERIFICATION_PREFIX + email;
         String storedCode = redisTemplate.opsForValue().get(key);

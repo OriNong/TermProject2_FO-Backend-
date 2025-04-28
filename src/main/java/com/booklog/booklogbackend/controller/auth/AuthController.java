@@ -30,7 +30,11 @@ public class AuthController {
     public ResponseEntity<ApiResponse> checkEmailInUse(@RequestParam("email") String email) {
 
         boolean emailExists = authService.emailAlreadyExists(email);
-        return ResponseEntity.ok(new ApiResponse(true, emailExists ? "이미 사용중인 이메일입니다." : "사용 가능한 이메일입니다"));
+        if (emailExists) {
+            return ResponseEntity.ok(new ApiResponse(false, "이미 사용중인 이메일입니다"));
+        }else {
+            return ResponseEntity.ok(new ApiResponse(true, "사용 가능한 이메일입니다"));
+        }
     }
 
     /**
@@ -42,7 +46,11 @@ public class AuthController {
     public ResponseEntity<ApiResponse> checkNicknameInUse(@RequestParam("nickname") String nickname) {
 
         boolean nicknameExists = authService.nicknameAlreadyExists(nickname);
-        return ResponseEntity.ok(new ApiResponse(true, nicknameExists ? "이미 사용중인 닉네임입니다." : "사용 가능한 닉네임입니다"));
+        if (nicknameExists) {
+            return ResponseEntity.ok(new ApiResponse(false, "이미 사용중인 닉네임입니다"));
+        } else {
+            return ResponseEntity.ok(new ApiResponse(true, "사용 가능한 닉네임입니다"));
+        }
     }
 
     /**
@@ -66,6 +74,7 @@ public class AuthController {
         Map<String, String> tokens = authService.login(userVO.getEmail(), userVO.getPassword());
         return ResponseEntity.ok(tokens);
     }
+
 
 
     @PostMapping("/refresh")
