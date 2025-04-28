@@ -23,6 +23,10 @@ spring:
           auth: true
           starttls:
             enable: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
 mybatis:
   mapper-locations: classpath:/mappers/**/*.xml
   type-aliases-package: com.booklog.booklogbackend.Model.vo
