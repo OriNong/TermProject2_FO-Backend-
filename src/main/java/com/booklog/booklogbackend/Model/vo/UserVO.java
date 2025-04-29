@@ -1,6 +1,8 @@
 package com.booklog.booklogbackend.Model.vo;
 
 import com.booklog.booklogbackend.Model.VerificationStatus;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -12,8 +14,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class UserVO {
+
     private Long userId;                        // 사용자 내부 고유 id
+
+    @Email
+    @NotBlank(message = "User Email cannot be blank")
     private String email;                       // 사용자 이메일
+
     private String password;                    // 사용자 비밀번호
     private String nickname;                    // 사용자 닉네임
     private VerificationStatus isVerified;      // 이메일 인증 여부

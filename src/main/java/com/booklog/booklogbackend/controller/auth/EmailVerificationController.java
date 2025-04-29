@@ -34,6 +34,11 @@ public class EmailVerificationController {
         return ResponseEntity.ok(new ApiResponse(true, "인증 코드 발송"));
     }
 
+    /**
+     * 발송된 인증 코드와 사용자 입력 인증 코드 일치 여부 확인
+     * @param request: 사용자 이메일과 사용자 입력 인증 코드
+     * @return : 인증 성공 여부 반환
+     */
     @PostMapping("/verify-email")
     public ResponseEntity<Map<String, Object>> verifyEmail(@RequestBody EmailVerificationRequest request) {
         boolean verified = emailVerificationService.verifyCode(request.getEmail(), request.getCode());

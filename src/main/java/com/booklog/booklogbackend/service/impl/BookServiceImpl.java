@@ -4,6 +4,7 @@ import com.booklog.booklogbackend.Model.vo.BookVO;
 import com.booklog.booklogbackend.service.BookService;
 import com.booklog.booklogbackend.util.NaverBookSearchUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
@@ -33,6 +35,7 @@ public class BookServiceImpl implements BookService {
                         objectMapper.getTypeFactory().constructCollectionType(List.class, BookVO.class));
             } catch (Exception e) {
                 // 캐시 데이터 파싱 실패시 무시하고 새로 가져옴
+                log.info("네이버 도서 검색 API 호출");
             }
         }
 
