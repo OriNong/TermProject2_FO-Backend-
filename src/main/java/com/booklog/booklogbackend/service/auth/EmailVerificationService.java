@@ -18,6 +18,7 @@ public class EmailVerificationService {
     private final JavaMailSender mailSender;
     private final StringRedisTemplate redisTemplate;
 
+    // redis에 저장 시 key-value 형식
     private static final String EMAIL_VERIFICATION_PREFIX = "email:verify:";
 
     // 인증 코드 만료 시간
@@ -73,6 +74,10 @@ public class EmailVerificationService {
         }
     }
 
+    /**
+     * 이메일 인증 코드 생성
+     * @return: 무작위 6자리 숫자 형식 문자열 반환
+     */
     private String generateVerificationCode() {
         Random random = new Random();
         int code = 100000 + random.nextInt(900000); // 100000 ~ 999999
