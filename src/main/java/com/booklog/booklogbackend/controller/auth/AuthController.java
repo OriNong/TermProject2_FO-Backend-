@@ -1,5 +1,7 @@
 package com.booklog.booklogbackend.controller.auth;
 
+import com.booklog.booklogbackend.Model.request.LoginRequest;
+import com.booklog.booklogbackend.Model.request.TokenRefreshRequest;
 import com.booklog.booklogbackend.Model.response.ApiResponse;
 import com.booklog.booklogbackend.Model.vo.UserVO;
 import com.booklog.booklogbackend.service.auth.AuthService;
@@ -66,20 +68,21 @@ public class AuthController {
 
     /**
      * 사용자 로그인
-     * @param userVO
+     *
+     * @param loginRequest
      * @return : JWT 토큰 반환
      */
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody UserVO userVO) {
-        Map<String, String> tokens = authService.login(userVO.getEmail(), userVO.getPassword());
+    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest loginRequest) {
+        Map<String, String> tokens = authService.login(loginRequest.getEmail(), loginRequest.getPassword());
         return ResponseEntity.ok(tokens);
     }
 
 
 
     @PostMapping("/refresh")
-    public ResponseEntity<String> refresh(@RequestBody Map<String, String> request) {
-        String newAccessToken = authService.refreshToken(request.get("refresh_token"));
+    public ResponseEntity<String> refresh(@RequestBody TokenRefreshRequest request) {
+        String newAccessToken = authService.refreshToken(request.getRefreshToken());
         return ResponseEntity.ok(newAccessToken);
     }
 
