@@ -65,7 +65,7 @@ public class NaverBookSearchUtil {
     // 사용자가 선택한 정렬 방식에 따라 파라미터 정렬
     private String mapSort(String sort) {
         if ("pubdate".equals(sort)) {
-            return "date";
+            return "date"; // 네이버 API에서 출판일은 "date"
         }
         return "sim"; // 네이버 API에서 정확도는 "sim"
     }
