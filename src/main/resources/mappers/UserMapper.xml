@@ -4,18 +4,28 @@
 <mapper namespace="com.booklog.booklogbackend.mapper.UserMapper">
 
     <insert id="insertUser" parameterType="com.booklog.booklogbackend.Model.vo.UserVO">
-        INSERT INTO user (email, password, nickname)
+        INSERT INTO user (
+            email,
+            password,
+            nickname
+        )
         VALUES (#{email}, #{password}, #{nickname})
     </insert>
 
     <select id="findByEmail" parameterType="string" resultType="com.booklog.booklogbackend.Model.vo.UserVO">
-        SELECT user_id, email, password, nickname
+        SELECT user_id  AS userId,
+               email    AS email,
+               password AS password,
+               nickname AS nickname
         FROM user
         WHERE email = #{email}
     </select>
 
     <select id="findByTokenId" parameterType="string" resultType="com.booklog.booklogbackend.Model.vo.UserVO">
-        SELECT u.user_id, u.email, u.password, u.nickname
+        SELECT u.user_id    AS userId,
+               u.email      AS email,
+               u.password   AS password,
+               u.nickname   AS nickname
         FROM user u
                  JOIN refresh_tokens rt ON u.id = rt.user_id
         WHERE rt.token_id = #{tokenId}
