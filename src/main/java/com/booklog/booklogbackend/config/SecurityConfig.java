@@ -24,6 +24,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll() // 로그인/회원가입 API는 인증 불필요
                         .requestMatchers("/api/test/sample").permitAll()
+                        .requestMatchers("/api/books/**").permitAll()
                                 //.anyRequest().permitAll()// 개발 환경 테스트를 위해 일단 모두 허용으로 설정해둔 상태 !!!
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )

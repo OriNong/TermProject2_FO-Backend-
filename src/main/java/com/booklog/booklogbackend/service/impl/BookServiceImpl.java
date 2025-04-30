@@ -30,6 +30,7 @@ public class BookServiceImpl implements BookService {
         // 1. Redis 캐시 먼저 조회
         String cachedValue = redisTemplate.opsForValue().get(cacheKey);
         if (cachedValue != null) {
+            log.debug("Redis에서 도서 정보 조회");
             try {
                 return objectMapper.readValue(cachedValue,
                         objectMapper.getTypeFactory().constructCollectionType(List.class, BookVO.class));
@@ -41,7 +42,8 @@ public class BookServiceImpl implements BookService {
 
         // 2. 네이버 API 호출
         List<BookVO> books = naverBookSearchUtil.searchBooks(query, sort, page, limit);
-
+        log.debug("Redis에 도서 정보 없음");
+        log.debug("네이버 도서 검색 api 호출");
         try {
             // 3. 결과를 Redis에 저장
             String jsonData = objectMapper.writeValueAsString(books);
