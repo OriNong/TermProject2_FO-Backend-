@@ -78,8 +78,11 @@ public class AuthController {
         return ResponseEntity.ok(tokens);
     }
 
-
-
+    /**
+     * AccessToken 만료 시 RefreshToken으로 AccessToken 재발급
+     * @param request
+     * @return
+     */
     @PostMapping("/refresh")
     public ResponseEntity<String> refresh(@RequestBody TokenRefreshRequest request) {
         String newAccessToken = authService.refreshToken(request.getRefreshToken());
