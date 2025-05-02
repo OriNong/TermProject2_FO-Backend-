@@ -24,10 +24,10 @@ public class BookSearchRequest {
 
     @Min(value = 1,  message = "page는 최소 1부터 시작합니다.")
     @Max(value = 100, message = "page는 최대 100까지 조회할 수 있습니다.")
-    private int page = 1;
+    private int page = 100;
 
     @Min(value = 1,  message = "limit은 최소 1입니다.")
     @Max(value = 100, message = "limit은 최대 100까지 가능합니다.")
-    private int limit = 20;
+    private int limit = 100;
 }
 
