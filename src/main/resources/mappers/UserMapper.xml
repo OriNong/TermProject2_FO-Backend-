@@ -9,7 +9,11 @@
             password,
             nickname
         )
-        VALUES (#{email}, #{password}, #{nickname})
+        VALUES (
+                    #{email},
+                    #{password},
+                     #{nickname}
+               )
     </insert>
 
     <select id="findByEmail" parameterType="string" resultType="com.booklog.booklogbackend.Model.vo.UserVO">
@@ -27,7 +31,7 @@
                u.password   AS password,
                u.nickname   AS nickname
         FROM user u
-                 JOIN refresh_tokens rt ON u.id = rt.user_id
+        JOIN refresh_tokens rt ON u.id = rt.user_id
         WHERE rt.token_id = #{tokenId}
     </select>
 

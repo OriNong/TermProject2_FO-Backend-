@@ -13,3 +13,4 @@ public class RedisConfig {
         return new StringRedisTemplate(redisConnectionFactory);
     }
 }
+// 왜 썼는지 (여러 템플릿 중에)

@@ -7,6 +7,7 @@ import java.sql.Date;
 
 @Getter
 @Setter
+// 삭제 예정
 public class VerificationCode {
     private Long id;
     private String email;
