@@ -40,5 +40,17 @@ public class BookController {
         );
         return ResponseEntity.ok(books);
     }
+
+    /**
+     * ISBN으로 도서 단건 조회
+     *
+     * @param isbn ISBN 코드
+     * @return BookVO (없을 경우 404 반환)
+     */
+    @GetMapping("/{isbn}")
+    public ResponseEntity<BookVO> getBookByIsbn(@PathVariable("isbn") String isbn) {
+        BookVO book = bookService.getBookByIsbn(isbn);
+        return ResponseEntity.ok(book);
+    }
 }
 
