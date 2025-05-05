@@ -28,6 +28,10 @@ public class AuthService {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
+    /**
+     * 사용자 회원 가입
+     * @param user : 회원가입 시 입력한 사용자 정보
+     */
     @Transactional
     public void register(UserVO user) {
         log.debug("Registering user: {}", user.getEmail());
@@ -54,6 +58,10 @@ public class AuthService {
         }
     }
 
+    /**
+     * 요청된 이메일과 비밀번호를 검증하여 사용자 로그인 처리
+     * @return : access token/refresh token 발급
+     */
     @Transactional
     public Map<String, String> login(String email, String password) {
         log.debug("Logging in user: {}", email);
@@ -82,6 +90,11 @@ public class AuthService {
         }
     }
 
+    /**
+     * 클라이언트 요청에서 access token이 만료된 경우
+     * 클라이언트의 refresh token과 서버 내 refresh token 값 비교하여
+     * access token 재발급
+     */
     public String refreshToken(String refreshToken) {
         try {
             if (!jwtTokenProvider.validateToken(refreshToken)) {
@@ -109,14 +122,17 @@ public class AuthService {
         }
     }
 
+    // 로그아웃 처리
     public void logout(Long userId) {
         refreshTokenMapper.deleteByUserId(userId);
     }
 
+    // 이메일 중복 체크
     public boolean emailAlreadyExists(String email) {
         return userMapper.existsByEmail(email);
     }
 
+    // 닉네임 중복 체크
     public boolean nicknameAlreadyExists(String nickname) {
         return userMapper.existsByNickname(nickname);
     }
