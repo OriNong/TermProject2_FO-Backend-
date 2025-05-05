@@ -34,7 +34,7 @@ mybatis:
 # jwt 설정
 jwt:
   secret: your-very-secure-secret-key-1234567890abcdef
-  access-token-expiration: 180000 # 30분 (액세스 토큰)
+  access-token-expiration: 360000 # 1시간 (액세스 토큰)
   refresh-token-expiration: 604800000 # 7일 (리프레시 토큰)
 # 네이버 책 검색 api 설정
 naver:
