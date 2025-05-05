@@ -21,7 +21,7 @@ public class EmailVerificationService {
     // redis에 저장 시 key-value 형식
     private static final String EMAIL_VERIFICATION_PREFIX = "email:verify:";
 
-    // 인증 코드 만료 시간
+    // 인증 코드 만료 시간 (5분)
     private static final int CODE_TTL = 5;
 
     /**
