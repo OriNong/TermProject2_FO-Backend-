@@ -1,11 +1,13 @@
 package com.booklog.booklogbackend.controller.book;
 
+import com.booklog.booklogbackend.Model.CustomUserDetails;
 import com.booklog.booklogbackend.Model.request.BookSearchRequest;
 import com.booklog.booklogbackend.Model.vo.BookVO;
 import com.booklog.booklogbackend.service.BookService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,6 +41,21 @@ public class BookController {
                 request.getLimit()
         );
         return ResponseEntity.ok(books);
+    }
+
+    @GetMapping("/status")
+    public ResponseEntity<String> getReadingStatus(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam Long bookId
+    ) {
+        Long userId = userDetails.getUser().getUserId();
+        String status = bookService.getReadingStatus(userId, bookId);
+
+        if (status == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(status);
     }
 
     /**

@@ -35,7 +35,10 @@ public class NaverBookSearchUtil {
     @Value("${naver.client-secret}")
     private String clientSecret;
 
+    // 키워드(도서명/저자)로 검색 시 네이버 도서 검색 api 기본 URL
     private static final String NAVER_BOOK_SEARCH_URL = "https://openapi.naver.com/v1/search/book.json";
+
+    // ISBN으로 도서 검색 시 네이버 도서 검색 api 기본 URL
     private static final String NAVER_BOOK_DETAIL_URL = "https://openapi.naver.com/v1/search/book_adv.json";
 
     /**

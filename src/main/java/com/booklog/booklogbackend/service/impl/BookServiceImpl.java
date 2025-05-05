@@ -67,6 +67,15 @@ public class BookServiceImpl implements BookService {
     }
 
     /**
+     * 서재에서 readingStatus 조회 (도서 상세페이지 버튼 조건부 표시)
+     * @return : readingStatus를 String으로 반환
+     */
+    @Override
+    public String getReadingStatus(Long userId, Long bookId) {
+        return bookMapper.selectBookcaseReadingStatus(userId, bookId);
+    }
+
+    /**
      * 도서 상세 보기 클릭 시 isbn으로 해당 도서 조회
      * 1. Redis 캐시 조회 2. 네이버 검색 api 호출
      * @param isbn : 선택된 도서의 isbn 값
