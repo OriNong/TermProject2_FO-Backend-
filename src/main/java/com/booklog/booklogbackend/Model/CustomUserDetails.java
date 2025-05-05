@@ -20,6 +20,10 @@ public class CustomUserDetails implements UserDetails {
        this.user = user;
    }
 
+   public Long getUserId() {
+       return user.getUserId();
+   }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null; // 권한 사용하지 않을 경우 null 또는 Collections.emptyList()
