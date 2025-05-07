@@ -43,7 +43,7 @@ public class BookController {
         return ResponseEntity.ok(books);
     }
 
-    @GetMapping("/status")
+    @GetMapping("/readingStatus")
     public ResponseEntity<String> getReadingStatus(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam Long bookId
