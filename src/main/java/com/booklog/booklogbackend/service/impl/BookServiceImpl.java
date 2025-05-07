@@ -67,7 +67,7 @@ public class BookServiceImpl implements BookService {
     }
 
     /**
-     * 서재에서 readingStatus 조회 (도서 상세페이지 버튼 조건부 표시)
+     * 도서 상세페이지 버튼 조건부 표시를 위해 서재에서 readingStatus 조회
      * @return : readingStatus를 String으로 반환
      */
     @Override
@@ -81,34 +81,37 @@ public class BookServiceImpl implements BookService {
      * @param isbn : 선택된 도서의 isbn 값
      * @return : 도서 단건 조회 결과 반환
      */
-    //!! 추후 리뷰 작성된 도서 테이블 저장 시 해당 조회 로직을 1과 2 사이에 추가 !!
     @Override
     public BookVO getBookByIsbn(String isbn) {
-        String cacheKey = buildCacheKey(isbn);
 
-        // 1. Redis 캐시 조회
-        String cached = redisTemplate.opsForValue().get(cacheKey);
-        if (cached != null) {
-            try {
-                return objectMapper.readValue(cached, BookVO.class);
-            } catch (Exception e) {
-                log.warn("캐시 파싱 실패, isbn: {}", isbn);
-            }
-        }
-
-        // 2. Naver API 조회
-        BookVO book = naverBookSearchUtil.searchBookByIsbn(isbn);
-
-        // 3. 캐시 저장
+        // 1. DB에 이미 등록된 도서인지 확인
+        BookVO book = bookMapper.findByIsbn(isbn);
         if (book != null) {
-            try {
-                redisTemplate.opsForValue().set(cacheKey, objectMapper.writeValueAsString(book), CACHE_TTL, TimeUnit.DAYS);
-            } catch (Exception e) {
-                log.warn("캐시 저장 실패, isbn: {}", isbn);
-            }
+            return book;
         }
 
-        return book;
+        String cacheKey = buildCacheKey(isbn);
+        // 2. Redis 캐시 조회
+        try {
+            String cached = redisTemplate.opsForValue().get(cacheKey);
+            if (cached != null) {
+                return objectMapper.readValue(cached, BookVO.class);
+            }
+        } catch (Exception e) {
+            log.warn("Redis 캐시 파싱 실패 - isbn: {}", isbn, e);
+        }
+
+        // 3. 네이버 API 호출
+        BookVO naverBook = naverBookSearchUtil.searchBookByIsbn(isbn);
+
+        // 4. 캐시 저장
+        try {
+            redisTemplate.opsForValue().set(cacheKey, objectMapper.writeValueAsString(naverBook), CACHE_TTL, TimeUnit.DAYS);
+        } catch (Exception e) {
+            log.warn("Redis 캐시 저장 실패 - isbn: {}", isbn, e);
+        }
+
+        return naverBook;
     }
 
     /**
