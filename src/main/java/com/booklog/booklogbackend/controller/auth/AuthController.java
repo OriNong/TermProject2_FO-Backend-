@@ -1,15 +1,17 @@
 package com.booklog.booklogbackend.controller.auth;
 
+import com.booklog.booklogbackend.Model.CustomUserDetails;
 import com.booklog.booklogbackend.Model.request.LoginRequest;
 import com.booklog.booklogbackend.Model.request.TokenRefreshRequest;
 import com.booklog.booklogbackend.Model.response.ApiResponse;
+import com.booklog.booklogbackend.Model.response.LoginSuccessResponse;
+import com.booklog.booklogbackend.Model.response.UserProfileResponse;
 import com.booklog.booklogbackend.Model.vo.UserVO;
 import com.booklog.booklogbackend.service.auth.AuthService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 
@@ -68,14 +70,27 @@ public class AuthController {
 
     /**
      * 사용자 로그인
-     *
-     * @param loginRequest
-     * @return : JWT 토큰 반환
+     * 성공 시 토큰과 초기 사용자 정보 세팅을 위한 닉네임 반환
+     * @param loginRequest : email, password
+     * @return : LoginSuccessResponse{accessToken, refreshToken, nickname}
      */
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest loginRequest) {
-        Map<String, String> tokens = authService.login(loginRequest.getEmail(), loginRequest.getPassword());
-        return ResponseEntity.ok(tokens);
+    public ResponseEntity<LoginSuccessResponse> login(@RequestBody LoginRequest loginRequest) {
+        LoginSuccessResponse loginSuccess = authService.login(loginRequest.getEmail(), loginRequest.getPassword());
+        return ResponseEntity.ok(loginSuccess);
+    }
+
+    /**
+     * 사용자 프로필 리턴
+     * @param userDetails : 로그인 사용자 정보
+     * @return : UserProfileResponse{email, nickname, createdAt, updatedAt}
+     */
+    @GetMapping("/user")
+    public ResponseEntity<UserProfileResponse> getUser(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long userId = userDetails.getUserId();
+        return ResponseEntity.ok(authService.getUserProfile(userId));
     }
 
     /**

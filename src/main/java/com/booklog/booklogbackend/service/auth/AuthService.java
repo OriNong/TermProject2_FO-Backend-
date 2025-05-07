@@ -1,5 +1,7 @@
 package com.booklog.booklogbackend.service.auth;
 
+import com.booklog.booklogbackend.Model.response.LoginSuccessResponse;
+import com.booklog.booklogbackend.Model.response.UserProfileResponse;
 import com.booklog.booklogbackend.Model.vo.UserVO;
 import com.booklog.booklogbackend.config.JwtTokenProvider;
 import com.booklog.booklogbackend.mapper.RefreshTokenMapper;
@@ -59,11 +61,12 @@ public class AuthService {
     }
 
     /**
-     * 요청된 이메일과 비밀번호를 검증하여 사용자 로그인 처리
-     * @return : access token/refresh token 발급
+     * 사용자 로그인
+     * 요청된 이메일과 비밀번호를 서버 저장 값과 비교
+     * @return : access token/refresh token 발급, nickname 반환
      */
     @Transactional
-    public Map<String, String> login(String email, String password) {
+    public LoginSuccessResponse login(String email, String password) {
         log.debug("Logging in user: {}", email);
         try {
             UserVO loginUser = userMapper.findByEmail(email);
@@ -80,13 +83,27 @@ public class AuthService {
             refreshTokenMapper.save(loginUser.getUserId(), tokenId, refreshToken, new Date(System.currentTimeMillis() + 604800000));
 
             log.debug("Login successful for email: {}", email);
-            Map<String, String> tokens = new HashMap<>();
-            tokens.put("accessToken", accessToken);
-            tokens.put("refreshToken", refreshToken);
-            return tokens;
+            return new LoginSuccessResponse(accessToken, refreshToken, loginUser.getNickname());
         } catch (Exception e) {
             log.error("Error in login for email {}: {}", email, e.getMessage(), e);
             throw new RuntimeException("Failed to login: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 사용자 프로필 리턴
+     * @return : email, nickname, createdAt, updatedAt
+     */
+    public UserProfileResponse getUserProfile(Long userId) {
+        try{
+            UserProfileResponse loginUser = userMapper.findByUserId(userId);
+            if (loginUser == null) {
+                throw new IllegalArgumentException("User not found");
+            }
+            return loginUser;
+        } catch (Exception e) {
+            log.error("Error in findByUserId {}: {}", userId, e.getMessage(), e);
+            throw new RuntimeException("Failed to find User: " + e.getMessage(), e);
         }
     }
 
