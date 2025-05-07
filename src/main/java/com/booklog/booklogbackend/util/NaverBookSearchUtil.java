@@ -1,5 +1,6 @@
 package com.booklog.booklogbackend.util;
 
+import com.booklog.booklogbackend.Model.response.BookSearchResponse;
 import com.booklog.booklogbackend.Model.vo.BookVO;
 import com.booklog.booklogbackend.exception.NaverApiException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -78,6 +79,53 @@ public class NaverBookSearchUtil {
     }
 
     /**
+     * 책 검색 메서드
+     * 총 검색 결과 수(total)를 함께 반환하도록 리팩토링
+     * @param query 검색어
+     * @param sort 정렬 방식 (pubdate: 출판일, sim: 정확도)
+     * @param page 페이지 번호
+     * @param limit 한 페이지당 결과 수
+     * @return 검색된 책 목록
+     */
+    public BookSearchResponse searchBooksWithMeta(String query, String sort, int page, int limit) {
+        try {
+            int start = (page - 1) * limit + 1;
+            String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
+            String url = NAVER_BOOK_SEARCH_URL + "?query=" + encodedQuery +
+                    "&sort=" + mapSort(sort) +
+                    "&start=" + start +
+                    "&display=" + limit;
+            URI uri = new URI(url);
+
+            ResponseEntity<String> response = executeNaverApiRequest(uri);
+
+            if (response.getStatusCode() == HttpStatus.OK) {
+                JsonNode root = objectMapper.readTree(response.getBody());
+                int total = root.path("total").asInt(); // 총 검색 결과 수
+                List<BookVO> books = parseBookList(root.path("items"));
+                return BookSearchResponse.builder()
+                        .books(books)
+                        .total(total)
+                        .page(page)
+                        .limit(limit)
+                        .build();
+            } else {
+                log.warn("네이버 책 검색 API 오류: {}", response.getStatusCode());
+                return BookSearchResponse.builder()
+                        .books(Collections.emptyList())
+                        .total(0)
+                        .page(page)
+                        .limit(limit)
+                        .build();
+            }
+        } catch (Exception e) {
+            log.error("네이버 책 검색 중 예외 발생: {}", e.getMessage(), e);
+            throw new NaverApiException("책 검색 중 오류가 발생했습니다", e);
+        }
+    }
+
+
+    /**
      * ISBN으로 책 상세 정보 조회
      * @param isbn 검색할 ISBN
      * @return 책 정보 또는 찾지 못한 경우 Optional.empty()
@@ -140,6 +188,18 @@ public class NaverBookSearchUtil {
         JsonNode root = objectMapper.readTree(jsonBody);
         JsonNode items = root.path("items");
 
+        List<BookVO> bookList = new ArrayList<>();
+        for (JsonNode item : items) {
+            bookList.add(parseBookItem(item));
+        }
+        return bookList;
+    }
+
+    /**
+     * Json 응답에서 책 목록 파싱
+     * JsonNode items를 직접 파라미터로 받아서 처리
+     */
+    private List<BookVO> parseBookList(JsonNode items) {
         List<BookVO> bookList = new ArrayList<>();
         for (JsonNode item : items) {
             bookList.add(parseBookItem(item));

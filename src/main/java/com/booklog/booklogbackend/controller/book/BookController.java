@@ -2,6 +2,7 @@ package com.booklog.booklogbackend.controller.book;
 
 import com.booklog.booklogbackend.Model.CustomUserDetails;
 import com.booklog.booklogbackend.Model.request.BookSearchRequest;
+import com.booklog.booklogbackend.Model.response.BookSearchResponse;
 import com.booklog.booklogbackend.Model.vo.BookVO;
 import com.booklog.booklogbackend.service.BookService;
 import jakarta.validation.Valid;
@@ -31,16 +32,16 @@ public class BookController {
      * @return BookVO 리스트
      */
     @GetMapping("/search")
-    public ResponseEntity<List<BookVO>> searchBooks(
+    public ResponseEntity<BookSearchResponse> searchBooks(
             @Valid @ModelAttribute BookSearchRequest request
             ) {
-        List<BookVO> books = bookService.searchBooks(
+        BookSearchResponse bookSearchResult = bookService.searchBooks(
                 request.getQuery(),
                 request.getSort(),
                 request.getPage(),
                 request.getLimit()
         );
-        return ResponseEntity.ok(books);
+        return ResponseEntity.ok(bookSearchResult);
     }
 
     @GetMapping("/readingStatus")

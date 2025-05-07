@@ -1,5 +1,6 @@
 package com.booklog.booklogbackend.service.impl;
 
+import com.booklog.booklogbackend.Model.response.BookSearchResponse;
 import com.booklog.booklogbackend.Model.vo.BookVO;
 import com.booklog.booklogbackend.mapper.BookMapper;
 import com.booklog.booklogbackend.service.BookService;
@@ -35,7 +36,7 @@ public class BookServiceImpl implements BookService {
      * @return : BookVO 리스트
      */
     @Override
-    public List<BookVO> searchBooks(String query, String sort, int page, int limit) {
+    public BookSearchResponse searchBooks(String query, String sort, int page, int limit) {
         String cacheKey = buildCacheKey(query, sort, page, limit);
 
         // 1. Redis 캐시 먼저 조회
@@ -52,7 +53,7 @@ public class BookServiceImpl implements BookService {
         }
 
         // 2. 네이버 API 호출
-        List<BookVO> books = naverBookSearchUtil.searchBooks(query, sort, page, limit);
+        BookSearchResponse books = naverBookSearchUtil.searchBooksWithMeta(query, sort, page, limit);
         log.debug("Redis에 도서 정보 없음");
         log.debug("네이버 도서 검색 api 호출");
         try {
