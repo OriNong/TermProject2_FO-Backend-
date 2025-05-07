@@ -1,5 +1,6 @@
 package com.booklog.booklogbackend.service.auth;
 
+import com.booklog.booklogbackend.Model.response.AccessTokenRefreshResponse;
 import com.booklog.booklogbackend.Model.response.LoginSuccessResponse;
 import com.booklog.booklogbackend.Model.response.UserProfileResponse;
 import com.booklog.booklogbackend.Model.vo.UserVO;
@@ -116,6 +117,8 @@ public class AuthService {
         try {
             if (!jwtTokenProvider.validateToken(refreshToken)) {
                 log.debug("Invalid refresh token");
+                String tokenId = jwtTokenProvider.getTokenIdFromToken(refreshToken);
+                refreshTokenMapper.deleteByTokenId(tokenId); // 로그아웃 처리
                 throw new IllegalArgumentException("Invalid refresh token");
             }
 
@@ -123,19 +126,35 @@ public class AuthService {
             String storedToken = refreshTokenMapper.findTokenByTokenId(tokenId);
             if (storedToken == null || !refreshToken.equals(storedToken)) {
                 log.debug("Refresh token mismatch or not found for tokenId: {}", tokenId);
+                refreshTokenMapper.deleteByTokenId(tokenId); // 로그아웃 처리
                 throw new IllegalArgumentException("Refresh token mismatch");
             }
 
-            UserVO user = userMapper.findByTokenId(tokenId); // 새 메서드 필요
+            UserVO user = userMapper.findByTokenId(tokenId); // 사용자 조회
             if (user == null) {
                 log.debug("User not found for tokenId: {}", tokenId);
+                refreshTokenMapper.deleteByTokenId(tokenId); // 로그아웃 처리
                 throw new IllegalArgumentException("User not found");
             }
 
             return jwtTokenProvider.generateAccessToken(user.getEmail());
+        } catch (IllegalArgumentException e) {
+            throw e; // 상위 컨트롤러에서 처리
         } catch (Exception e) {
             log.error("Error refreshing token: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to refresh token: " + e.getMessage(), e);
+        }
+    }
+
+    //  리프레시 토큰이 잘못된 경우 로그아웃 처리
+    public void logoutByToken(String refreshToken) {
+        try {
+            String tokenId = jwtTokenProvider.getTokenIdFromToken(refreshToken);
+            refreshTokenMapper.deleteByTokenId(tokenId);
+            log.info("Logged out by tokenId: {}", tokenId);
+        } catch (Exception e) {
+            log.warn("Failed to delete token during logout: {}", e.getMessage());
+            // 무시 가능
         }
     }
 

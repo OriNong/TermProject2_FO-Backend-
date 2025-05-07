@@ -3,12 +3,14 @@ package com.booklog.booklogbackend.controller.auth;
 import com.booklog.booklogbackend.Model.CustomUserDetails;
 import com.booklog.booklogbackend.Model.request.LoginRequest;
 import com.booklog.booklogbackend.Model.request.TokenRefreshRequest;
+import com.booklog.booklogbackend.Model.response.AccessTokenRefreshResponse;
 import com.booklog.booklogbackend.Model.response.ApiResponse;
 import com.booklog.booklogbackend.Model.response.LoginSuccessResponse;
 import com.booklog.booklogbackend.Model.response.UserProfileResponse;
 import com.booklog.booklogbackend.Model.vo.UserVO;
 import com.booklog.booklogbackend.service.auth.AuthService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -99,17 +101,30 @@ public class AuthController {
      * @return
      */
     @PostMapping("/refresh")
-    public ResponseEntity<String> refresh(@RequestBody TokenRefreshRequest request) {
-        String newAccessToken = authService.refreshToken(request.getRefreshToken());
-        return ResponseEntity.ok(newAccessToken);
+    public ResponseEntity<AccessTokenRefreshResponse> refresh(@RequestBody TokenRefreshRequest request) {
+        if (request.getRefreshToken() == null) {
+            throw new IllegalArgumentException("refresh token is null");
+        }
+        log.info("Refresh request received");
+        try {
+            String newAccessToken = authService.refreshToken(request.getRefreshToken());
+            log.debug("New access token: {}", newAccessToken);
+            return ResponseEntity.ok(new AccessTokenRefreshResponse(newAccessToken));
+        } catch (IllegalArgumentException e) {
+            // 💡 유효하지 않은 토큰일 경우 로그아웃 처리
+            log.warn("Refresh token invalid, logging out");
+            authService.logoutByToken(request.getRefreshToken());  // 👈 여기 추가됨
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 
     /**
      * 회원 로그 아웃 처리 (토큰 삭제)
      */
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(@RequestBody Map<String, Long> request) {
-        authService.logout(request.get("userId"));
+    public ResponseEntity<String> logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userDetails.getUserId();
+        authService.logout(userId);
         return ResponseEntity.ok("User logged out successfully");
     }
 }
