@@ -40,7 +40,7 @@
                u.password   AS password,
                u.nickname   AS nickname
         FROM user u
-        JOIN refresh_tokens rt ON u.id = rt.user_id
+        JOIN refresh_tokens rt ON u.user_id = rt.user_id
         WHERE rt.token_id = #{tokenId}
     </select>
 
