@@ -1,5 +1,6 @@
 package com.booklog.booklogbackend.mapper;
 
+import com.booklog.booklogbackend.Model.response.BookForNewReviewResponse;
 import com.booklog.booklogbackend.Model.vo.BookVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -16,9 +17,8 @@ public interface BookMapper {
     // 도서 상세보기 시 시스템에 등록된 도서 중 isbn으로 일치 도서 조회
     BookVO findByIsbn(String isbn);
 
-    void existByIsbn(String isbn);
-
-    BookVO findByBookId(Long bookId);
-
-    BookVO findFromBookshelfByIsbn(String isbn);
+    // bookId로 도서 조회
+    BookVO getBookByBookId(Long bookId);
+    // 리뷰 작성 페이지 초기 도서 정보 세팅에 특화된 조회 로직
+    BookForNewReviewResponse getReviewRequestBookByBookId(Long bookId);
 }

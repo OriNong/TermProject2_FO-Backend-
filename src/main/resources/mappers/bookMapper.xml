@@ -55,4 +55,32 @@
         WHERE isbn = #{isbn}
     </select>
 
+    <select id="getBookByBookId" resultType="com.booklog.booklogbackend.Model.vo.BookVO">
+        SELECT
+            book_id             AS bookId,
+            isbn                AS isbn,
+            book_title          AS bookTitle,
+            book_link           AS bookLink,
+            book_img            AS bookImg,
+            book_author         AS bookAuthor,
+            book_discount       AS bookDiscount,
+            book_publisher      AS bookPublisher,
+            book_pub_date       AS bookPubDate,
+            book_description    AS bookDescription
+        FROM books
+        WHERE book_id = #{bookId}
+    </select>
+
+    <select id="getReviewRequestBookByBookId" resultType="com.booklog.booklogbackend.Model.response.BookForNewReviewResponse">
+        SELECT
+            book_id             AS bookId,
+            isbn                AS isbn,
+            book_title          AS bookTitle,
+            book_img            AS bookImg,
+            book_author         AS bookAuthor,
+            book_publisher      AS bookPublisher,
+        FROM books
+        WHERE book_id = #{bookId}
+    </select>
+
 </mapper>

@@ -1,9 +1,8 @@
 package com.booklog.booklogbackend.service;
 
-import com.booklog.booklogbackend.Model.request.BookSearchRequest;
+import com.booklog.booklogbackend.Model.response.BookForNewReviewResponse;
 import com.booklog.booklogbackend.Model.response.BookSearchResponse;
 import com.booklog.booklogbackend.Model.vo.BookVO;
-import java.util.List;
 
 public interface BookService {
 
@@ -13,4 +12,5 @@ public interface BookService {
     String getReadingStatus(Long userId, Long bookId);
 
     BookVO getBookByIsbn(String isbn);
+
 }

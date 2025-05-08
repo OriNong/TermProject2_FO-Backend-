@@ -2,6 +2,7 @@ package com.booklog.booklogbackend.controller.book;
 
 import com.booklog.booklogbackend.Model.CustomUserDetails;
 import com.booklog.booklogbackend.Model.request.BookSearchRequest;
+import com.booklog.booklogbackend.Model.response.BookForNewReviewResponse;
 import com.booklog.booklogbackend.Model.response.BookSearchResponse;
 import com.booklog.booklogbackend.Model.vo.BookVO;
 import com.booklog.booklogbackend.service.BookService;
@@ -11,8 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/books")
@@ -44,6 +43,12 @@ public class BookController {
         return ResponseEntity.ok(bookSearchResult);
     }
 
+    /**
+     * 사용자의 도서 읽기 상태(TO_READ, READING, COMPLETED) 조회
+     * @param userDetails : 로그인 사용자
+     * @param bookId : 도서 id
+     * @return : String {TO_READ, READING, COMPLETED}
+     */
     @GetMapping("/readingStatus")
     public ResponseEntity<String> getReadingStatus(
             @AuthenticationPrincipal CustomUserDetails userDetails,
