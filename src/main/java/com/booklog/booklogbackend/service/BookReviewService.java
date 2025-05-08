@@ -1,7 +1,11 @@
 package com.booklog.booklogbackend.service;
 
 import com.booklog.booklogbackend.Model.request.BookReviewRequest;
+import com.booklog.booklogbackend.Model.response.BookForNewReviewResponse;
 
 public interface BookReviewService {
-    void createReview(Long userId, BookReviewRequest bookReviewRequest);
+
+    BookForNewReviewResponse getReviewRequestBook(Long bookId);
+
+    void registerReview(Long userId, BookReviewRequest bookReviewRequest);
 }
