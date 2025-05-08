@@ -145,6 +145,8 @@ public class BookcaseServiceImpl implements BookcaseService {
                 LocalDate end = joined.getReadingFinishedAt().toLocalDate();
                 long days = Duration.between(start.atStartOfDay(), end.atStartOfDay()).toDays();
                 statusText = "총 " + (days == 0 ? 1 : days) + "일 동안 읽었습니다.";
+            } else {
+                statusText = "독서를 시작해보세요";
             }
 
             return BookcaseResponse.builder()
