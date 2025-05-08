@@ -26,4 +26,8 @@ public interface BookcaseMapper {
 
     // 사용자의 서재 전체 정보 조회
     List<BookcaseWithBookVO> selectBookcaseByUserId(Long userId);
+
+    // 리뷰 작성 시 도서 읽기 상태가 COMPLETED인지 조회
+        // true: COMPLETED, false: TO_READ || READING
+    boolean isBookReadCompleted(@Param("userId") Long userId, @Param("bookId") Long bookId, @Param("status") String status);
 }

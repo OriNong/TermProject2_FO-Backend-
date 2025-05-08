@@ -72,5 +72,14 @@
         ORDER BY bc.updated_at DESC
     </select>
 
+    <!-- 도서의 읽기 상태가 COMPLETED인지 조회 -->
+    <select id="isBookReadCompleted" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM bookcase
+        WHERE user_id = #{userId}
+          AND book_id = #{bookId}
+          AND reading_status = #{status}
+    </select>
+
 
 </mapper>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.booklog.booklogbackend.mapper.BookReviewMapper">
+
+    <!-- 도서에 신규 리뷰 등록 -->
+    <insert id="insertReview" parameterType="com.booklog.booklogbackend.Model.vo.BookReviewVO">
+        INSERT INTO book_review(
+                                user_id,
+                                book_id,
+                                review_title,
+                                review_content,
+                                rating,
+                                likes_count,
+                                created_at,
+                                updated_at
+        )
+        VALUES (
+                #{userId},
+                #{bookId},
+                #{reviewTitle},
+                #{reviewContent},
+                #{rating},
+                #{likesCount},
+                #{createdAt,
+                #{updatedAt}
+               )
+    </insert>
+
+    <!-- bookId에 매칭되는 userId가 있는지 조회 -->
+    <!-- 사용자는 하나의 도서에 대해 하나의 리뷰만 작성 가능 -->
+    <select id="isReviewExist" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM book_review
+        WHERE user_id = #{userId} AND book_id = #{bookId}
+    </select>
+
+</mapper>
