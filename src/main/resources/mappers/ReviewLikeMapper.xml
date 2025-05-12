@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.booklog.booklogbackend.mapper.ReviewLikeMapper">
+
+    <!-- 좋아요 존재 여부 확인 -->
+    <select id="existsByUserIdAndReviewId" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM review_likes
+            WHERE user_id = #{userId}
+              AND review_id = #{reviewId}
+        )
+    </select>
+
+    <!-- 좋아요 추가 -->
+    <insert id="insertLike">
+        INSERT INTO review_likes (user_id, review_id)
+        VALUES (#{userId}, #{reviewId})
+    </insert>
+    <!-- 좋아요 추가 시 book_review.likes_count 업데이트 (+ 1) -->
+    <update id="incrementLikeCount">
+        UPDATE book_review
+        SET likes_count = likes_count + 1
+        WHERE review_id = #{reviewId}
+    </update>
+
+    <!-- 좋아요 취소 -->
+    <delete id="deleteLike">
+        DELETE FROM review_likes
+        WHERE user_id = #{userId}
+          AND review_id = #{reviewId}
+    </delete>
+    <!-- 좋아요 취소 시 book_review.likes_count 업데이트 (- 1) -->
+    <update id="decrementLikeCount">
+        UPDATE book_review
+        SET likes_count = likes_count - 1
+        WHERE review_id = #{reviewId}
+    </update>
+
+    <!-- 특정 리뷰의 총 좋아요 수 -->
+    <select id="countByReviewId" resultType="int">
+        SELECT COUNT(*)
+        FROM review_likes
+        WHERE review_id = #{reviewId}
+    </select>
+
+</mapper>
