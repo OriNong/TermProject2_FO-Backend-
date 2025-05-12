@@ -1,14 +1,13 @@
 package com.booklog.booklogbackend.Model;
 
 import com.booklog.booklogbackend.Model.vo.UserVO;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Collections;
 
 @Getter
 @Builder
@@ -26,7 +25,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null; // 권한 사용하지 않을 경우 null 또는 Collections.emptyList()
+        return Collections.emptyList(); // 권한 사용하지 않을 경우 null 또는 Collections.emptyList()
     }
 
     @Override
