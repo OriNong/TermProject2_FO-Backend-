@@ -38,4 +38,27 @@
             c.parent_comment_id ASC, c.created_at ASC
     </select>
 
+    <!-- 존재 여부 확인 -->
+    <select id="existsByCommentIdAndUserId" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM review_comments
+            WHERE comment_id = #{commentId}
+              AND user_id = #{userId}
+        )
+    </select>
+
+    <!-- 댓글 삭제 -->
+    <delete id="deleteComment">
+        DELETE FROM review_comments
+        WHERE comment_id = #{commentId}
+    </delete>
+
+    <!-- 댓글 수정 -->
+    <update id="updateComment">
+        UPDATE review_comments
+        SET content = #{content}
+        WHERE comment_id = #{commentId}
+    </update>
+
 </mapper>

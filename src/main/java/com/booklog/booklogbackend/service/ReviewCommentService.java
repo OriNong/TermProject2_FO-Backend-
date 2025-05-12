@@ -12,4 +12,11 @@ public interface ReviewCommentService {
 
     // 특정 리뷰의 댓글 조회(대댓글 포함 2depth 구조)
     List<ReviewCommentResponse> getCommentsWithReplies(Long reviewId);
+
+    // 댓글 삭제
+    void deleteComment(Long commentId, Long userId);
+
+    // 댓글 수정
+    void updateComment(Long commentId, Long userId, String content);
+
 }

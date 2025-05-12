@@ -1,6 +1,7 @@
 package com.booklog.booklogbackend.controller.review;
 
 import com.booklog.booklogbackend.Model.request.ReviewCommentRequest;
+import com.booklog.booklogbackend.Model.request.ReviewCommentUpdateRequest;
 import com.booklog.booklogbackend.Model.response.ReviewCommentResponse;
 import com.booklog.booklogbackend.service.ReviewCommentService;
 import jakarta.validation.Valid;
@@ -49,5 +50,36 @@ public class ReviewCommentController {
         List<ReviewCommentResponse> comments = reviewCommentService.getCommentsWithReplies(reviewId);
         return ResponseEntity.ok(comments);
     }
+
+    /**
+     * 댓글 삭제
+     * @param commentId : 댓글 고유 id
+     * @param userId : 댓글 작성 사용자 고유 id
+     */
+    @DeleteMapping("/{commentId}/delete")
+    public ResponseEntity<Void> deleteComment(
+            @PathVariable Long commentId,
+            @AuthenticationPrincipal(expression = "userId") Long userId
+    ) {
+        reviewCommentService.deleteComment(commentId, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 댓글 수정
+     * @param commentId : 댓글 고유 id
+     * @param userId : 댓글 작성 사용자 고유 id
+     * @param request : 수정된 댓글 내용
+     */
+    @PutMapping("/{commentId}/update")
+    public ResponseEntity<Void> updateComment(
+            @PathVariable Long commentId,
+            @AuthenticationPrincipal(expression = "userId") Long userId,
+            @Valid @RequestBody ReviewCommentUpdateRequest request
+    ) {
+        reviewCommentService.updateComment(commentId, userId, request.getContent());
+        return ResponseEntity.ok().build();
+    }
+
 
 }

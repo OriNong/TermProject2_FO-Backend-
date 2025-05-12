@@ -6,6 +6,7 @@ import com.booklog.booklogbackend.Model.vo.ReviewCommentVO;
 import com.booklog.booklogbackend.mapper.ReviewCommentMapper;
 import com.booklog.booklogbackend.service.ReviewCommentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ public class ReviewCommentServiceImpl implements ReviewCommentService {
             ReviewCommentResponse response = map.computeIfAbsent(vo.getCommentId(), id ->
                     ReviewCommentResponse.builder()
                             .commentId(vo.getCommentId())
+                            .userId(vo.getUserId())
                             .parentCommentId(vo.getParentCommentId())
                             .userNickname(vo.getUserNickname())
                             .content(vo.getContent())
@@ -68,5 +70,31 @@ public class ReviewCommentServiceImpl implements ReviewCommentService {
 
         return roots;
     }
+
+    /**
+     * 댓글 삭제
+     */
+    @Override
+    public void deleteComment(Long commentId, Long userId) {
+        if (!reviewCommentMapper.existsByCommentIdAndUserId(commentId, userId)) {
+            throw new AccessDeniedException("삭제 권한이 없습니다.");
+        }
+        reviewCommentMapper.deleteComment(commentId);
+    }
+
+    /**
+     * 댓글 수정
+     * @param commentId : 댓글 고유 id
+     * @param userId : 댓글 소유자 고유 id
+     * @param content : 수정된 내용
+     */
+    @Override
+    public void updateComment(Long commentId, Long userId, String content) {
+        if (!reviewCommentMapper.existsByCommentIdAndUserId(commentId, userId)) {
+            throw new AccessDeniedException("수정 권한이 없습니다.");
+        }
+        reviewCommentMapper.updateComment(commentId, content);
+    }
+
 
 }
