@@ -4,6 +4,7 @@ import com.booklog.booklogbackend.Model.request.BookReviewRequest;
 import com.booklog.booklogbackend.Model.response.BookForNewReviewResponse;
 import com.booklog.booklogbackend.Model.response.BookReviewDetailResponse;
 import com.booklog.booklogbackend.Model.response.BookReviewResponse;
+import com.booklog.booklogbackend.Model.response.MyReviewResponse;
 import com.booklog.booklogbackend.service.BookReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -74,6 +75,19 @@ public class ReviewController {
     ) {
         BookReviewDetailResponse response = bookReviewService.getReviewDetail(reviewId, userId);
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 로그인 사용자가 작성한 모든 리뷰 목록 조회
+     * @param userId : 로그인 사용자 ID
+     * @return 사용자가 작성한 리뷰 목록
+     */
+    @GetMapping("/my")
+    public ResponseEntity<List<MyReviewResponse>> getMyReviews(
+            @AuthenticationPrincipal(expression = "userId") Long userId
+    ) {
+        List<MyReviewResponse> myReviews = bookReviewService.getMyReviews(userId);
+        return ResponseEntity.ok(myReviews);
     }
 
 }
