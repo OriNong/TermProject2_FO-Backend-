@@ -2,10 +2,7 @@ package com.booklog.booklogbackend.service;
 
 import com.booklog.booklogbackend.Model.request.BookReviewRequest;
 import com.booklog.booklogbackend.Model.request.ReviewCommentRequest;
-import com.booklog.booklogbackend.Model.response.BookForNewReviewResponse;
-import com.booklog.booklogbackend.Model.response.BookReviewDetailResponse;
-import com.booklog.booklogbackend.Model.response.BookReviewResponse;
-import com.booklog.booklogbackend.Model.response.BookWithReviewStaticsResponse;
+import com.booklog.booklogbackend.Model.response.*;
 
 import java.util.List;
 
@@ -22,4 +19,7 @@ public interface BookReviewService {
 
     // 리뷰 상세 조회
     BookReviewDetailResponse getReviewDetail(Long reviewId, Long userId);
+
+    // 사용자가 작성한 리뷰 목록 조회
+    List<MyReviewResponse> getMyReviews(Long userId);
 }

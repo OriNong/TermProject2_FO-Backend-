@@ -3,10 +3,7 @@ package com.booklog.booklogbackend.service.impl;
 import com.booklog.booklogbackend.Model.BookReadingStatus;
 import com.booklog.booklogbackend.Model.request.BookReviewRequest;
 import com.booklog.booklogbackend.Model.request.ReviewCommentRequest;
-import com.booklog.booklogbackend.Model.response.BookForNewReviewResponse;
-import com.booklog.booklogbackend.Model.response.BookReviewDetailResponse;
-import com.booklog.booklogbackend.Model.response.BookReviewResponse;
-import com.booklog.booklogbackend.Model.response.BookWithReviewStaticsResponse;
+import com.booklog.booklogbackend.Model.response.*;
 import com.booklog.booklogbackend.Model.vo.BookReviewVO;
 import com.booklog.booklogbackend.Model.vo.BookVO;
 import com.booklog.booklogbackend.mapper.BookMapper;
@@ -99,5 +96,13 @@ public class BookReviewServiceImpl implements BookReviewService {
     @Override
     public BookReviewDetailResponse getReviewDetail(Long reviewId, Long userId) {
         return bookReviewMapper.selectReviewDetailById(reviewId, userId);
+    }
+
+    /**
+     * 사용자가 작성한 리뷰 목록 조회
+     */
+    @Override
+    public List<MyReviewResponse> getMyReviews(Long userId) {
+        return bookReviewMapper.selectMyReviews(userId);
     }
 }

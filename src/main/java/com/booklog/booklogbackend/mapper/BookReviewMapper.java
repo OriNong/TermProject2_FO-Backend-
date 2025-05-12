@@ -2,6 +2,7 @@ package com.booklog.booklogbackend.mapper;
 
 import com.booklog.booklogbackend.Model.response.BookReviewDetailResponse;
 import com.booklog.booklogbackend.Model.response.BookReviewResponse;
+import com.booklog.booklogbackend.Model.response.MyReviewResponse;
 import com.booklog.booklogbackend.Model.vo.BookReviewVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -22,5 +23,8 @@ public interface BookReviewMapper {
 
     // 리뷰 상세 조회
     BookReviewDetailResponse selectReviewDetailById(@Param("reviewId") Long reviewId, @Param("userId") Long userId);
+
+    // 사용자가 작성한 리뷰 목록 조회
+    List<MyReviewResponse> selectMyReviews(Long userId);
 
 }
