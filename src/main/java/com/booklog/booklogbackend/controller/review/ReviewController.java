@@ -1,7 +1,9 @@
-package com.booklog.booklogbackend.controller.book;
+package com.booklog.booklogbackend.controller.review;
 
 import com.booklog.booklogbackend.Model.request.BookReviewRequest;
 import com.booklog.booklogbackend.Model.response.BookForNewReviewResponse;
+import com.booklog.booklogbackend.Model.response.BookReviewDetailResponse;
+import com.booklog.booklogbackend.Model.response.BookReviewResponse;
 import com.booklog.booklogbackend.service.BookReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -9,10 +11,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/reviews")
 @RequiredArgsConstructor
-public class BookReviewController {
+public class ReviewController {
 
     private final BookReviewService bookReviewService;
 
@@ -41,4 +45,35 @@ public class BookReviewController {
         bookReviewService.registerReview(userId, bookReviewRequest);
         return ResponseEntity.ok().build();
     }
+
+    /**
+     * 특정 도서에 등록된 리뷰 목록 조회
+     * @param bookId : 도서 id
+     * @param userId : 로그인 사용자 id
+     * @return 리뷰 데이터 리스트
+     */
+    @GetMapping("/list/{bookId}")
+    public ResponseEntity<List<BookReviewResponse>> getReviewListByBook(
+            @PathVariable Long bookId,
+            @AuthenticationPrincipal(expression = "userId") Long userId
+    ){
+        List<BookReviewResponse> reviews = bookReviewService.getReviewsByBookId(bookId, userId);
+        return ResponseEntity.ok(reviews);
+    }
+
+    /**
+     * 리뷰 상세 조회
+     * @param reviewId : 리뷰 고유 id
+     * @param userId : 로그인 사용자 id
+     * @return : 개별 리뷰 상세정보
+     */
+    @GetMapping("/{reviewId}")
+    public ResponseEntity<BookReviewDetailResponse> getReviewDetail(
+            @PathVariable Long reviewId,
+            @AuthenticationPrincipal(expression = "userId") Long userId
+    ) {
+        BookReviewDetailResponse response = bookReviewService.getReviewDetail(reviewId, userId);
+        return ResponseEntity.ok(response);
+    }
+
 }

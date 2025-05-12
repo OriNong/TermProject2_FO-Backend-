@@ -2,7 +2,11 @@ package com.booklog.booklogbackend.service.impl;
 
 import com.booklog.booklogbackend.Model.BookReadingStatus;
 import com.booklog.booklogbackend.Model.request.BookReviewRequest;
+import com.booklog.booklogbackend.Model.request.ReviewCommentRequest;
 import com.booklog.booklogbackend.Model.response.BookForNewReviewResponse;
+import com.booklog.booklogbackend.Model.response.BookReviewDetailResponse;
+import com.booklog.booklogbackend.Model.response.BookReviewResponse;
+import com.booklog.booklogbackend.Model.response.BookWithReviewStaticsResponse;
 import com.booklog.booklogbackend.Model.vo.BookReviewVO;
 import com.booklog.booklogbackend.Model.vo.BookVO;
 import com.booklog.booklogbackend.mapper.BookMapper;
@@ -14,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -25,8 +30,6 @@ public class BookReviewServiceImpl implements BookReviewService {
 
     /**
      * 리뷰 작성 페이지 진입 시 도서 정보 표시
-     * @param bookId : 도서 id
-     * @return : BookForNewReviewResponse.java
      */
     @Override
     public BookForNewReviewResponse getReviewRequestBook(Long bookId) {
@@ -47,8 +50,6 @@ public class BookReviewServiceImpl implements BookReviewService {
 
     /**
      * 신규 도서 리뷰 작성
-     * @param userId : 로그인 사용자
-     * @param bookReviewRequest : 리뷰 작성 내용
      */
     @Transactional
     @Override
@@ -82,5 +83,21 @@ public class BookReviewServiceImpl implements BookReviewService {
                 .updatedAt(LocalDateTime.now())
                 .build();
         bookReviewMapper.insertReview(review);
+    }
+
+    /**
+     * 특정 도서에 등록된 리뷰 목록 조회
+     */
+    @Override
+    public List<BookReviewResponse> getReviewsByBookId(Long bookId, Long userId) {
+        return bookReviewMapper.selectReviewByBookId(bookId, userId);
+    }
+
+    /**
+     * 특정 리뷰 상세 조회
+     */
+    @Override
+    public BookReviewDetailResponse getReviewDetail(Long reviewId, Long userId) {
+        return bookReviewMapper.selectReviewDetailById(reviewId, userId);
     }
 }
