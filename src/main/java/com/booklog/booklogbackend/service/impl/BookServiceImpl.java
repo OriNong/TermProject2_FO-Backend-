@@ -1,7 +1,7 @@
 package com.booklog.booklogbackend.service.impl;
 
-import com.booklog.booklogbackend.Model.response.BookForNewReviewResponse;
 import com.booklog.booklogbackend.Model.response.BookSearchResponse;
+import com.booklog.booklogbackend.Model.response.BookWithReviewStaticsResponse;
 import com.booklog.booklogbackend.Model.vo.BookVO;
 import com.booklog.booklogbackend.mapper.BookMapper;
 import com.booklog.booklogbackend.service.BookService;
@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -115,6 +114,15 @@ public class BookServiceImpl implements BookService {
         }
 
         return naverBook;
+    }
+
+    /**
+     * 리뷰가 1건 이상 등록되어 있는 도서 조회 (메인페이지 진입 시)
+     * @return : 도서 정보 + 해당 도서의 리뷰 통계 정보(평균 평점, 등록 리뷰 수)
+     */
+    @Override
+    public List<BookWithReviewStaticsResponse> getBooksWithReviewSummary() {
+        return bookMapper.selectBooksWithReviewStatics();
     }
 
     /**

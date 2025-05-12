@@ -1,15 +1,21 @@
 package com.booklog.booklogbackend.mapper;
 
 import com.booklog.booklogbackend.Model.response.BookForNewReviewResponse;
+import com.booklog.booklogbackend.Model.response.BookWithReviewStaticsResponse;
 import com.booklog.booklogbackend.Model.vo.BookVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 @Mapper
 public interface BookMapper {
 
     // 시스템 books 테이블에 신규 도서 등록(사용자 서재 등록 도서, 리뷰 작성된 도서)
     void insertBook(BookVO bookVO);
+
+    // 리뷰가 1건 이상 등록되어 있는 도서만 조회
+    List<BookWithReviewStaticsResponse> selectBooksWithReviewStatics();
 
     // 서재에서 readingStatus만 조회
     String selectBookcaseReadingStatus(@Param("userId") Long userId, @Param("bookId") Long bookId);

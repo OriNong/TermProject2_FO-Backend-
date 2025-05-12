@@ -2,8 +2,8 @@ package com.booklog.booklogbackend.controller.book;
 
 import com.booklog.booklogbackend.Model.CustomUserDetails;
 import com.booklog.booklogbackend.Model.request.BookSearchRequest;
-import com.booklog.booklogbackend.Model.response.BookForNewReviewResponse;
 import com.booklog.booklogbackend.Model.response.BookSearchResponse;
+import com.booklog.booklogbackend.Model.response.BookWithReviewStaticsResponse;
 import com.booklog.booklogbackend.Model.vo.BookVO;
 import com.booklog.booklogbackend.service.BookService;
 import jakarta.validation.Valid;
@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/books")
@@ -74,6 +76,16 @@ public class BookController {
     public ResponseEntity<BookVO> getBookByIsbn(@PathVariable("isbn") String isbn) {
         BookVO book = bookService.getBookByIsbn(isbn);
         return ResponseEntity.ok(book);
+    }
+
+    /**
+     * 리뷰가 1건 이상 등록되어 있는 도서 목록 조회
+     * 메인페이지 진입 시 사용
+     * @return : 도서 정보 + 해당 도서의 리뷰 통계 정보(평균 평점, 등록 리뷰 수)
+     */
+    @GetMapping("/reviewed")
+    public ResponseEntity<List<BookWithReviewStaticsResponse>> getBooksWithReview(){
+        return ResponseEntity.ok(bookService.getBooksWithReviewSummary());
     }
 }
 
