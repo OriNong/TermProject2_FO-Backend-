@@ -26,10 +26,12 @@
     </select>
 
     <select id="findByUserId" parameterType="Long" resultType="com.booklog.booklogbackend.Model.response.UserProfileResponse">
-        SELECT email AS email,
-               nickname AS nickname,
-               created_at AS createdAt,
-               updated_at AS updatedAt
+        SELECT
+            user_id     AS userId,
+            email       AS email,
+            nickname    AS nickname,
+            created_at  AS createdAt,
+            updated_at  AS updatedAt
         FROM user
         WHERE user_id = #{userId}
     </select>
