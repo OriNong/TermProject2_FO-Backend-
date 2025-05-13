@@ -12,8 +12,17 @@ import java.util.List;
 @Mapper
 public interface BookReviewMapper {
 
+    // 리뷰 id로 리뷰 조회
+    BookReviewVO selectByReviewId(Long reviewId);
+
     // 리뷰 등록
     void insertReview(BookReviewVO review);
+
+    // 리뷰 수정
+    void updateReview(BookReviewVO review);
+
+    // 리뷰 삭제
+    void deleteReview(Long reviewId);
 
     // userId와 bookId로 이미 작성된 리뷰가 있는지 조회
     boolean isReviewExist(@Param("userId") Long userId, @Param("bookId") Long bookId);

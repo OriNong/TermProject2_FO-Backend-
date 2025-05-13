@@ -1,6 +1,7 @@
 package com.booklog.booklogbackend.controller.review;
 
-import com.booklog.booklogbackend.Model.request.BookReviewRequest;
+import com.booklog.booklogbackend.Model.request.BookReviewCreateRequest;
+import com.booklog.booklogbackend.Model.request.BookReviewUpdateRequest;
 import com.booklog.booklogbackend.Model.response.BookForNewReviewResponse;
 import com.booklog.booklogbackend.Model.response.BookReviewDetailResponse;
 import com.booklog.booklogbackend.Model.response.BookReviewResponse;
@@ -35,15 +36,47 @@ public class ReviewController {
     /**
      * 도서 리뷰 신규 등록
      * @param userId : 로그인 사용자 id
-     * @param bookReviewRequest : 작성된 리뷰 form
+     * @param bookReviewCreateRequest : 작성된 리뷰 form
      * @return
      */
     @PostMapping("/register")
     public ResponseEntity<Void> registerReview(
             @AuthenticationPrincipal(expression = "userId") Long userId,
-            @Valid @RequestBody BookReviewRequest bookReviewRequest
+            @Valid @RequestBody BookReviewCreateRequest bookReviewCreateRequest
             ) {
-        bookReviewService.registerReview(userId, bookReviewRequest);
+        bookReviewService.registerReview(userId, bookReviewCreateRequest);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 작성된 도서 리뷰 수정
+     * @param reviewId : 기존 리뷰 고유 id
+     * @param userId : 로그인 사용자 id
+     * @param request : 리뷰 수정 내용
+     * @return
+     */
+    @PutMapping("/update/{reviewId}")
+    public ResponseEntity<Void> updateReview(
+            @PathVariable Long reviewId,
+            @AuthenticationPrincipal(expression = "userId") Long userId,
+            @Valid @RequestBody BookReviewUpdateRequest request
+    ) {
+        bookReviewService.updateReview(reviewId, userId, request);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 작성된 리뷰 삭제
+     * @param reviewId : 기존 리뷰 고유 id
+     * @param userId : 로그인 사용자 id
+     * @return
+     */
+    @DeleteMapping("/delete/{reviewId}")
+    public ResponseEntity<Void> deleteReview(
+            @PathVariable Long reviewId,
+            @AuthenticationPrincipal(expression = "userId") Long userId
+    ) {
+        bookReviewService.deleteReview(reviewId, userId);
         return ResponseEntity.ok().build();
     }
 

@@ -1,7 +1,7 @@
 package com.booklog.booklogbackend.service;
 
-import com.booklog.booklogbackend.Model.request.BookReviewRequest;
-import com.booklog.booklogbackend.Model.request.ReviewCommentRequest;
+import com.booklog.booklogbackend.Model.request.BookReviewCreateRequest;
+import com.booklog.booklogbackend.Model.request.BookReviewUpdateRequest;
 import com.booklog.booklogbackend.Model.response.*;
 
 import java.util.List;
@@ -12,7 +12,13 @@ public interface BookReviewService {
     BookForNewReviewResponse getReviewRequestBook(Long bookId);
 
     // 신규 도서 리뷰 등록
-    void registerReview(Long userId, BookReviewRequest bookReviewRequest);
+    void registerReview(Long userId, BookReviewCreateRequest bookReviewCreateRequest);
+
+    // 작성된 리뷰 수정
+    void updateReview(Long reviewId, Long userId, BookReviewUpdateRequest request);
+
+    // 작성된 리뷰 삭제
+    void deleteReview(Long reviewId, Long userId);
 
     // 특정 도서에 작성된 리뷰 목록 조회
     List<BookReviewResponse> getReviewsByBookId(Long bookId, Long userId);
@@ -22,4 +28,5 @@ public interface BookReviewService {
 
     // 사용자가 작성한 리뷰 목록 조회
     List<MyReviewResponse> getMyReviews(Long userId);
+
 }
