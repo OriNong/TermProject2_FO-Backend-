@@ -27,8 +27,6 @@ public class BookcaseServiceImpl implements BookcaseService {
     private final BookcaseMapper bookcaseMapper;
     private final BookMapper bookMapper;
 
-
-
     /**
      * 사용자가 '읽을 목록에 추가' 선택 시 사용자 서재에 도서 신규 등록
      * @param userId : 로그인 사용자 정보
