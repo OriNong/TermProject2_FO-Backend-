@@ -49,12 +49,36 @@
             reviewCount DESC
     </select>
 
+    <!-- 도서를 서재에 등록한 사용자의 total count -->
+    <select id="countAllBookcaseStatsByBookId" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM
+            bookcase
+        WHERE
+            book_id = #{bookId}
+    </select>
+
+    <!-- 도서가 서재에 등록된 읽기 상태 별 count -->
+    <select id="countBookcaseStatsByBookIdAndStatus" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM
+            bookcase
+        WHERE
+            book_id = #{bookId}
+          AND reading_status = #{status}
+    </select>
+
     <!-- 서재에서 readingStaus만 조회 -->
     <select id="selectBookcaseReadingStatus"
             resultType="string">
-        SELECT reading_status
-        FROM bookcase
-        WHERE user_id = #{userId}
+        SELECT
+            reading_status
+        FROM
+            bookcase
+        WHERE
+            user_id = #{userId}
           AND book_id = #{bookId}
     </select>
 
@@ -71,8 +95,10 @@
             book_publisher      AS bookPublisher,
             book_pub_date       AS bookPubDate,
             book_description    AS bookDescription
-        FROM books
-        WHERE isbn = #{isbn}
+        FROM
+            books
+        WHERE
+            isbn = #{isbn}
     </select>
 
     <select id="getBookByBookId" resultType="com.booklog.booklogbackend.Model.vo.BookVO">
@@ -87,8 +113,10 @@
             book_publisher      AS bookPublisher,
             book_pub_date       AS bookPubDate,
             book_description    AS bookDescription
-        FROM books
-        WHERE book_id = #{bookId}
+        FROM
+            books
+        WHERE
+            book_id = #{bookId}
     </select>
 
     <select id="getReviewRequestBookByBookId" resultType="com.booklog.booklogbackend.Model.response.BookForNewReviewResponse">
@@ -99,8 +127,10 @@
             book_img            AS bookImg,
             book_author         AS bookAuthor,
             book_publisher      AS bookPublisher,
-        FROM books
-        WHERE book_id = #{bookId}
+        FROM
+            books
+        WHERE
+            book_id = #{bookId}
     </select>
 
 </mapper>

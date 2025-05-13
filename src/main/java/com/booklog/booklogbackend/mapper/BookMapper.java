@@ -17,6 +17,12 @@ public interface BookMapper {
     // 리뷰가 1건 이상 등록되어 있는 도서만 조회
     List<BookWithReviewStaticsResponse> selectBooksWithReviewStatics();
 
+    // 도서를 서재에 등록한 사용자의 total count
+    int countAllBookcaseStatsByBookId(@Param("bookId") Long bookId);
+
+    // 도서가 서재에 등록된 읽기 상태 별 count
+    int countBookcaseStatsByBookIdAndStatus(@Param("bookId") Long bookId, @Param("status") String status);
+
     // 서재에서 readingStatus만 조회
     String selectBookcaseReadingStatus(@Param("userId") Long userId, @Param("bookId") Long bookId);
 

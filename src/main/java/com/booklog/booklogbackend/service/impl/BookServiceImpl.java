@@ -1,7 +1,9 @@
 package com.booklog.booklogbackend.service.impl;
 
+import com.booklog.booklogbackend.Model.BookReadingStatus;
 import com.booklog.booklogbackend.Model.response.BookSearchResponse;
 import com.booklog.booklogbackend.Model.response.BookWithReviewStaticsResponse;
+import com.booklog.booklogbackend.Model.response.BookcaseStatsResponse;
 import com.booklog.booklogbackend.Model.vo.BookVO;
 import com.booklog.booklogbackend.mapper.BookMapper;
 import com.booklog.booklogbackend.service.BookService;
@@ -69,6 +71,18 @@ public class BookServiceImpl implements BookService {
     }
 
     /**
+     * 도서 상세페이지에서 해당 도서의 전체 서재 통계 정보 조회
+     * @return : /서재에 등록한 사용자 수 총합/  /현재 독서 중인 사용자 수/  /독서 완료한 사용자 수/
+     */
+    @Override
+    public BookcaseStatsResponse getTotalBookcaseStats(Long bookId) {
+        int total = bookMapper.countAllBookcaseStatsByBookId(bookId);
+        int reading = bookMapper.countBookcaseStatsByBookIdAndStatus(bookId, BookReadingStatus.READING.name());
+        int completed = bookMapper.countBookcaseStatsByBookIdAndStatus(bookId, BookReadingStatus.COMPLETED.name());
+        return new BookcaseStatsResponse(total, reading, completed);
+    }
+
+    /**
      * 도서 상세페이지 버튼 조건부 표시를 위해 서재에서 readingStatus 조회
      * @return : readingStatus를 String으로 반환
      */
@@ -79,7 +93,7 @@ public class BookServiceImpl implements BookService {
 
     /**
      * 도서 상세 보기 클릭 시 isbn으로 해당 도서 조회
-     * 1. Redis 캐시 조회 2. 네이버 검색 api 호출
+     * 1. DB 조회 2. Redis 캐시 조회 3. 네이버 검색 api 호출
      * @param isbn : 선택된 도서의 isbn 값
      * @return : 도서 단건 조회 결과 반환
      */

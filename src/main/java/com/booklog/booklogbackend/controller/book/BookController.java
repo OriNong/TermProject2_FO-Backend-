@@ -4,8 +4,10 @@ import com.booklog.booklogbackend.Model.CustomUserDetails;
 import com.booklog.booklogbackend.Model.request.BookSearchRequest;
 import com.booklog.booklogbackend.Model.response.BookSearchResponse;
 import com.booklog.booklogbackend.Model.response.BookWithReviewStaticsResponse;
+import com.booklog.booklogbackend.Model.response.BookcaseStatsResponse;
 import com.booklog.booklogbackend.Model.vo.BookVO;
 import com.booklog.booklogbackend.service.BookService;
+import com.booklog.booklogbackend.service.BookcaseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,7 @@ import java.util.List;
 public class BookController {
 
     private final BookService bookService;
+    private final BookcaseService bookcaseService;
 
     /**
      * 도서 검색 API
@@ -46,15 +49,32 @@ public class BookController {
     }
 
     /**
+     * 특정 도서의 서재 등록 통계 조회
+     * @param bookId : 도서 고유 id
+     * @return : BookcaseStatsResponse{
+     *     서재에 등록한 총 사용자 수
+     *     독서 중인 사용자 수
+     *     독서 완료 사용자 수
+     * }
+     */
+    @GetMapping("/bookcase/stats/{bookId}")
+    public ResponseEntity<BookcaseStatsResponse> getBookcaseStats(
+            @PathVariable Long bookId
+    ) {
+        BookcaseStatsResponse stats = bookService.getTotalBookcaseStats(bookId);
+        return ResponseEntity.ok(stats);
+    }
+
+    /**
      * 사용자의 도서 읽기 상태(TO_READ, READING, COMPLETED) 조회
      * @param userDetails : 로그인 사용자
      * @param bookId : 도서 id
      * @return : String {TO_READ, READING, COMPLETED}
      */
-    @GetMapping("/readingStatus")
+    @GetMapping("/readingStatus/{bookId}")
     public ResponseEntity<String> getReadingStatus(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam Long bookId
+            @PathVariable Long bookId
     ) {
         Long userId = userDetails.getUser().getUserId();
         String status = bookService.getReadingStatus(userId, bookId);
