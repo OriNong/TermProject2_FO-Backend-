@@ -111,9 +111,9 @@ public class AuthController {
             log.debug("New access token: {}", newAccessToken);
             return ResponseEntity.ok(new AccessTokenRefreshResponse(newAccessToken));
         } catch (IllegalArgumentException e) {
-            // 💡 유효하지 않은 토큰일 경우 로그아웃 처리
+            // 유효하지 않은 토큰일 경우 로그아웃 처리
             log.warn("Refresh token invalid, logging out");
-            authService.logoutByToken(request.getRefreshToken());  // 👈 여기 추가됨
+            authService.logoutByToken(request.getRefreshToken());  // 여기 추가됨
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
