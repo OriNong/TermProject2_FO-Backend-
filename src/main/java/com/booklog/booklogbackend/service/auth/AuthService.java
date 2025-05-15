@@ -5,6 +5,7 @@ import com.booklog.booklogbackend.Model.response.LoginSuccessResponse;
 import com.booklog.booklogbackend.Model.response.UserProfileResponse;
 import com.booklog.booklogbackend.Model.vo.UserVO;
 import com.booklog.booklogbackend.config.JwtTokenProvider;
+import com.booklog.booklogbackend.exception.UserLoginException;
 import com.booklog.booklogbackend.mapper.RefreshTokenMapper;
 import com.booklog.booklogbackend.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -73,7 +74,7 @@ public class AuthService {
             UserVO loginUser = userMapper.findByEmail(email);
             if (loginUser == null || !passwordEncoder.matches(password, loginUser.getPassword())) {
                 log.debug("Invalid email or password: {}", email);
-                throw new IllegalArgumentException("Invalid email or password");
+                throw new UserLoginException("유효하지 않은 이메일 또는 비밀번호입니다.");
             }
 
             String accessToken = jwtTokenProvider.generateAccessToken(email);
@@ -87,7 +88,7 @@ public class AuthService {
             return new LoginSuccessResponse(accessToken, refreshToken, loginUser.getNickname());
         } catch (Exception e) {
             log.error("Error in login for email {}: {}", email, e.getMessage(), e);
-            throw new RuntimeException("Failed to login: " + e.getMessage(), e);
+            throw new UserLoginException("유효하지 않은 이메일 또는 비밀번호입니다.");
         }
     }
 
