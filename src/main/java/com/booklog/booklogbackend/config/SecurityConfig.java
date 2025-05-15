@@ -1,5 +1,6 @@
 package com.booklog.booklogbackend.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -14,11 +15,15 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
@@ -31,20 +36,31 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/auth/**",
-                                "/api/books/**"
-                        ).permitAll()
+                        .requestMatchers("/api/auth/login").permitAll()  // 인증 관련 엔드포인트
+                        .requestMatchers("/api/auth/check-email").permitAll()
+                        .requestMatchers("/api/auth/check-nickname").permitAll()
+                        .requestMatchers("/api/auth/send-email").permitAll()
+                        .requestMatchers("/api/auth/verify-email").permitAll()
+                        .requestMatchers("/api/auth/register").permitAll()
+                        .requestMatchers("/api/auth/refresh").permitAll()
+                        .requestMatchers("/api/books/public/**").permitAll() // 공개 책 API
+                        // 프론트 오피스는 단순 인증만 필요, 권한 체크 없음
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
+                        // 인증되지 않은 사용자 처리 - 단순화된 형태
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(401);
                             response.setContentType("application/json;charset=UTF-8");
-                            response.getWriter().write("{\"message\": \"Unauthorized\"}");
+
+                            Map<String, Object> errorDetails = new HashMap<>();
+                            errorDetails.put("message", "인증이 필요합니다");
+                            errorDetails.put("code", "AUTHENTICATION_REQUIRED");
+
+                            response.getWriter().write(objectMapper.writeValueAsString(errorDetails));
                         })
                 )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // 여기에 주입된 필터 사용
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -55,7 +71,8 @@ public class SecurityConfig {
         configuration.addAllowedOrigin("http://localhost:8080");  // 프론트 도메인
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
-        configuration.setAllowCredentials(true);  // 쿠키/헤더 전송 허용
+        configuration.setAllowCredentials(true);
+        configuration.addExposedHeader("Authorization"); // 프론트엔드에서 헤더 접근 허용
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
