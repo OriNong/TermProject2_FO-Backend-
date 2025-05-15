@@ -3,7 +3,6 @@ package com.booklog.booklogbackend.controller.auth;
 import com.booklog.booklogbackend.Model.request.EmailVerificationRequest;
 import com.booklog.booklogbackend.Model.response.ApiResponse;
 import com.booklog.booklogbackend.service.auth.EmailVerificationService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,10 +40,11 @@ public class EmailVerificationController {
      */
     @PostMapping("/verify-email")
     public ResponseEntity<Map<String, Object>> verifyEmail(@RequestBody EmailVerificationRequest request) {
-        boolean verified = emailVerificationService.verifyCode(request.getEmail(), request.getCode());
+        boolean success = emailVerificationService.verifyCode(request.getEmail(), request.getCode());
         Map<String, Object> response = new HashMap<>();
-        response.put("verified", verified);
-        response.put("message", verified ? "인증 성공" : "잘못된 코드");
+        response.put("verified", success);
+        response.put("message", success ? "인증 성공" : "잘못된 코드");
         return ResponseEntity.ok(response);
+        // ExceptionHandler에서 ApiResponse 활용하여 Success와 Message 반환
     }
 }

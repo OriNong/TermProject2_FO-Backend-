@@ -1,5 +1,6 @@
 package com.booklog.booklogbackend.service.auth;
 
+import com.booklog.booklogbackend.exception.EmailVerificationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -44,7 +45,7 @@ public class EmailVerificationService {
             log.info("인증 코드 발송 및 Redis 저장 완료 - 이메일: {}", email);
         } catch (Exception e) {
             log.error("이메일 발송 실패 - 이메일: {}, 에러: {}", email, e.getMessage(), e);
-            throw new RuntimeException("이메일 발송에 실패했습니다.");
+            throw new EmailVerificationException("이메일 발송에 실패했습니다.");
         }
     }
 
@@ -59,8 +60,7 @@ public class EmailVerificationService {
         String storedCode = redisTemplate.opsForValue().get(key);
 
         if (storedCode == null) {
-            log.warn("인증 코드 만료 또는 존재하지 않음 - 이메일: {}", email);
-            return false; // 코드 만료
+            throw new EmailVerificationException("인증 코드 만료 또는 존재하지 않음");
         }
 
         if (storedCode.equals(inputCode)) {
@@ -69,8 +69,7 @@ public class EmailVerificationService {
             log.info("이메일 인증 성공 - 이메일: {}", email);
             return true;
         } else {
-            log.warn("인증 코드 불일치 - 이메일: {}, 입력 코드: {}", email, inputCode);
-            return false;
+            throw new EmailVerificationException("인증 코드가 일치하지 않습니다");
         }
     }
 
