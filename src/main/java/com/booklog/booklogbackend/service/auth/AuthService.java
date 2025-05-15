@@ -1,14 +1,18 @@
 package com.booklog.booklogbackend.service.auth;
 
+import com.booklog.booklogbackend.Model.VerificationStatus;
 import com.booklog.booklogbackend.Model.response.AccessTokenRefreshResponse;
 import com.booklog.booklogbackend.Model.response.LoginSuccessResponse;
 import com.booklog.booklogbackend.Model.response.UserProfileResponse;
 import com.booklog.booklogbackend.Model.vo.UserVO;
 import com.booklog.booklogbackend.config.JwtTokenProvider;
+import com.booklog.booklogbackend.exception.AlreadyExistException;
 import com.booklog.booklogbackend.exception.UserLoginException;
+import com.booklog.booklogbackend.exception.UserRegisterException;
 import com.booklog.booklogbackend.mapper.RefreshTokenMapper;
 import com.booklog.booklogbackend.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,13 +28,18 @@ public class AuthService {
     private final RefreshTokenMapper refreshTokenMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final StringRedisTemplate redisTemplate;
 
-    public AuthService(UserMapper userMapper, RefreshTokenMapper refreshTokenMapper, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
+    public AuthService(UserMapper userMapper, RefreshTokenMapper refreshTokenMapper, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, StringRedisTemplate redisTemplate) {
         this.userMapper = userMapper;
         this.refreshTokenMapper = refreshTokenMapper;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.redisTemplate = redisTemplate;
     }
+
+    // 이메일 인증 확인을 위한 키 접두어 (EmailVerificationService와 동일한 접두어 사용)
+    private static final String EMAIL_VERIFICATION_PREFIX = "email:verify:";
 
     /**
      * 사용자 회원 가입
@@ -44,22 +53,47 @@ public class AuthService {
             log.debug("Email exists: {} -> {}", user.getEmail(), existsByEmail);
             if (existsByEmail) {
                 log.debug("Email already exists: {}", user.getEmail());
-                throw new IllegalArgumentException("Email already exists");
+                throw new AlreadyExistException("이미 사용중인 이메일입니다.");
             }
             boolean existsByNickname = userMapper.existsByNickname(user.getNickname());
             log.debug("Nickname exists: {} -> {}", user.getNickname(), existsByNickname);
             if (existsByNickname) {
                 log.debug("Nickname already exists: {}", user.getNickname());
-                throw new IllegalArgumentException("Nickname already exists");
+                throw new AlreadyExistException("이미 사용중인 닉네임입니다.");
             }
+
+            // 이메일 인증 확인
+            if (!isEmailVerified(user.getEmail())) {
+                log.debug("Email not verified: {}", user.getEmail());
+                throw new IllegalArgumentException("Email verification required");
+            }
+
+            // 비밀번호 암호화
             user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+            // 이메일 인증 상태 설정
+            user.setIsVerified(VerificationStatus.VERIFIED);
+
             log.debug("Inserting user: {}", user.getEmail());
             userMapper.insertUser(user);
             log.debug("User inserted: {}", user.getEmail());
         } catch (Exception e) {
             log.error("Error in register for email {}: {}", user.getEmail(), e.getMessage(), e);
-            throw new RuntimeException("Failed to register user: " + e.getMessage(), e);
+            throw new UserRegisterException(user.getEmail(), e.getMessage());
         }
+    }
+
+    /**
+     * 이메일 인증 여부 확인
+     * Redis에 해당 이메일의 인증 이력이 있는지 확인
+     * 참고: 이메일 검증은 EmailVerificationService에서 수행되며, 성공 시 Redis에서 삭제됨
+     * 따라서 추가적인 검증 플래그가 필요함
+     */
+    private boolean isEmailVerified(String email) {
+        // 검증 완료 플래그 키 (이메일 검증 성공 시 설정됨)
+        String verifiedKey = EMAIL_VERIFICATION_PREFIX + "verified:" + email;
+        Boolean isVerified = redisTemplate.hasKey(verifiedKey);
+        return Boolean.TRUE.equals(isVerified);
     }
 
     /**

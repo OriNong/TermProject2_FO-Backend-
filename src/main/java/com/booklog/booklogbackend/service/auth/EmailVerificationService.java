@@ -22,6 +22,9 @@ public class EmailVerificationService {
     // redis에 저장 시 key-value 형식
     private static final String EMAIL_VERIFICATION_PREFIX = "email:verify:";
 
+    // 이메일 인증 완료 플래그 (30분 동안 유효) -> 인증 완료 후 인증 정보 저장
+    private static final int VERIFIED_FLAG_TTL = 30;
+
     // 인증 코드 만료 시간 (5분)
     private static final int CODE_TTL = 5;
 
@@ -67,6 +70,11 @@ public class EmailVerificationService {
             // 인증 성공 시 Redis에서 삭제
             redisTemplate.delete(key);
             log.info("이메일 인증 성공 - 이메일: {}", email);
+
+            // 인증 완료 플래그 설정 (30분 유효)
+            String verifiedKey = EMAIL_VERIFICATION_PREFIX + "verified:" + email;
+            redisTemplate.opsForValue().set(verifiedKey, "true", VERIFIED_FLAG_TTL, TimeUnit.MINUTES);
+            log.info("이메일 인증 내역 30분간 유효 - 이메일: {}", email);
             return true;
         } else {
             throw new EmailVerificationException("인증 코드가 일치하지 않습니다");

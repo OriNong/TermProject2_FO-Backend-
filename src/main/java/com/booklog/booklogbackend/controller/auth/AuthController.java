@@ -1,6 +1,7 @@
 package com.booklog.booklogbackend.controller.auth;
 
 import com.booklog.booklogbackend.Model.CustomUserDetails;
+import com.booklog.booklogbackend.Model.VerificationStatus;
 import com.booklog.booklogbackend.Model.request.LoginRequest;
 import com.booklog.booklogbackend.Model.request.TokenRefreshRequest;
 import com.booklog.booklogbackend.Model.response.AccessTokenRefreshResponse;
@@ -61,13 +62,28 @@ public class AuthController {
 
     /**
      * 사용자 회원 가입
-     * @param userVO : Frontend에서 사용자 Form 입력 정보
+     * @param user : Frontend에서 사용자 Form 입력 정보
      * @return : 회원가입 성공 여부 반환
      */
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody UserVO userVO) {
-        authService.register(userVO);
-        return ResponseEntity.ok("User registered successfully");
+    public ResponseEntity<?> register(@RequestBody UserVO user) {
+        try {
+            // 이메일 인증 상태 초기값 설정 (컨트롤러에서도 설정해 두기)
+            user.setIsVerified(VerificationStatus.UNVERIFIED);
+
+            authService.register(user);
+            return ResponseEntity.ok(new ApiResponse(true, "사용자 등록 성공"));
+        } catch (IllegalArgumentException e) {
+            if (e.getMessage().contains("Email verification required")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ApiResponse(false, "이메일 인증이 필요합니다"));
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse(false, e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse(false, "회원가입 처리 중 오류가 발생했습니다"));
+        }
     }
 
     /**
