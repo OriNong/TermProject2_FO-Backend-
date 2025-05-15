@@ -84,7 +84,7 @@ public class AuthService {
     }
 
     /**
-     * 이메일 인증 여부 확인
+     * 회원 가입 완료 전 이메일 인증 여부 확인
      * Redis에 해당 이메일의 인증 이력이 있는지 확인
      * 참고: 이메일 검증은 EmailVerificationService에서 수행되며, 성공 시 Redis에서 삭제됨
      * 따라서 추가적인 검증 플래그가 필요함
@@ -111,6 +111,10 @@ public class AuthService {
                 throw new UserLoginException("유효하지 않은 이메일 또는 비밀번호입니다.");
             }
 
+            if (loginUser.getIsVerified() != VerificationStatus.VERIFIED) {
+                throw new UserLoginException("이메일 인증이 완료되지 않았습니다.");
+            }
+
             String accessToken = jwtTokenProvider.generateAccessToken(email);
             String refreshToken = jwtTokenProvider.generateRefreshToken();
             String tokenId = jwtTokenProvider.getTokenIdFromToken(refreshToken);
@@ -122,7 +126,7 @@ public class AuthService {
             return new LoginSuccessResponse(accessToken, refreshToken, loginUser.getNickname());
         } catch (Exception e) {
             log.error("Error in login for email {}: {}", email, e.getMessage(), e);
-            throw new UserLoginException("유효하지 않은 이메일 또는 비밀번호입니다.");
+            throw new UserLoginException(e.getMessage());
         }
     }
 
