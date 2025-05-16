@@ -3,10 +3,13 @@ package com.booklog.booklogbackend.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -54,8 +57,20 @@ public class SecurityConfig {
                             response.setContentType("application/json;charset=UTF-8");
 
                             Map<String, Object> errorDetails = new HashMap<>();
-                            errorDetails.put("message", "인증이 필요합니다");
-                            errorDetails.put("code", "AUTHENTICATION_REQUIRED");
+
+                            if (authException instanceof DisabledException) {
+                                errorDetails.put("message", "관리자에 의해 비활성화된 계정입니다.");
+                                errorDetails.put("code", "ACCOUNT_DISABLED");
+                            } else if (authException instanceof LockedException) {
+                                errorDetails.put("message", "이메일 인증이 완료되지 않았습니다.");
+                                errorDetails.put("code", "EMAIL_NOT_VERIFIED");
+                            } else if (authException instanceof UsernameNotFoundException) {
+                                errorDetails.put("message", "존재하지 않는 계정입니다.");
+                                errorDetails.put("code", "USER_NOT_FOUND");
+                            } else {
+                                errorDetails.put("message", "인증이 필요합니다.");
+                                errorDetails.put("code", "AUTHENTICATION_REQUIRED");
+                            }
 
                             response.getWriter().write(objectMapper.writeValueAsString(errorDetails));
                         })
