@@ -27,7 +27,8 @@
             u.nickname AS userNickname,
             c.content AS content,
             c.parent_comment_id AS parentCommentId,
-            c.created_at AS createdAt
+            c.created_at AS createdAt,
+            c.is_deleted AS isDeleted
         FROM
             review_comments c
                 JOIN
@@ -49,10 +50,12 @@
     </select>
 
     <!-- 댓글 삭제 -->
-    <delete id="deleteComment">
-        DELETE FROM review_comments
+    <!-- Soft Delete -->
+    <update id="deleteComment">
+        UPDATE review_comments
+        SET is_deleted = TRUE
         WHERE comment_id = #{commentId}
-    </delete>
+    </update>
 
     <!-- 댓글 수정 -->
     <update id="updateComment">

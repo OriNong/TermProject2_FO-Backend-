@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.booklog.booklogbackend.mapper.RefreshTokenMapper">
+
     <insert id="save">
-        INSERT INTO refresh_tokens (user_id, token_id, token, expiry_date)
-        VALUES (#{userId}, #{tokenId}, #{token}, #{expiryDate})
+        INSERT INTO
+            refresh_tokens (
+            user_id,
+            token_id,
+            token,
+            expiry_date
+        )
+        VALUES (
+                #{userId},
+                #{tokenId},
+                #{token},
+                #{expiryDate}
+               )
     </insert>
 
     <select id="findTokenByTokenId" parameterType="string" resultType="string">

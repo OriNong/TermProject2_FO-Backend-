@@ -32,7 +32,8 @@
                 ELSE reading_finished_at
             END,
             updated_at = CURRENT_TIMESTAMP
-        WHERE user_id = #{userId} AND book_id = #{bookId}
+        WHERE user_id = #{userId}
+          AND book_id = #{bookId}
     </update>
 
     <!-- 사용자 서재에 도서 신규 등록 -->
