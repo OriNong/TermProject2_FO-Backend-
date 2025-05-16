@@ -9,6 +9,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 @Builder
 public class ReviewCommentVO {
 
@@ -19,6 +20,7 @@ public class ReviewCommentVO {
     private String content;
     private Long parentCommentId; // null이면 일반 댓글, 있으면 대댓글
     private LocalDateTime createdAt;
+    private boolean isDeleted; // 삭제 여부
 
     // 대댓글 목록 (2depth)
     private List<ReviewCommentVO> replies;
