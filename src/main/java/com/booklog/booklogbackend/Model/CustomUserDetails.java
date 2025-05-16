@@ -1,26 +1,24 @@
 package com.booklog.booklogbackend.Model;
 
+import com.booklog.booklogbackend.Model.VerificationStatus;
 import com.booklog.booklogbackend.Model.vo.UserVO;
-import lombok.Builder;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
+@Getter
 public class CustomUserDetails implements UserDetails {
-    @Getter
+
     private final Long userId;
     private final String email;
     private final String password;
-    @Getter
     private final String nickname;
-    @Getter
     private final VerificationStatus verificationStatus;
+    private final boolean isActive; // 계정 활성 상태 필드 추가
 
     public CustomUserDetails(UserVO user) {
         this.userId = user.getUserId();
@@ -28,11 +26,11 @@ public class CustomUserDetails implements UserDetails {
         this.password = user.getPassword();
         this.nickname = user.getNickname();
         this.verificationStatus = user.getIsVerified();
+        this.isActive = user.isActive(); // 여기서 주입
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // 권한 체크를 하지 않으므로 최소한의 기본 권한만 반환
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
@@ -48,25 +46,26 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
+        return true; // 기본 활성 상태 유지
     }
 
+    // 이메일 인증 여부로 로그인 가능 여부 결정
     @Override
     public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
+        return this.verificationStatus == VerificationStatus.VERIFIED;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
+        return true;
     }
 
+    // 계정 활성 상태 (is_active) 체크
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return this.isActive; // 계정 활성 상태에 따라 인증 가능 여부 결정
     }
 
-    // 이메일 인증 여부 확인 헬퍼 메소드
     public boolean isEmailVerified() {
         return verificationStatus == VerificationStatus.VERIFIED;
     }

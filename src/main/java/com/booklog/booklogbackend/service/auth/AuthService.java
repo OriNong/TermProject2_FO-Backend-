@@ -7,6 +7,7 @@ import com.booklog.booklogbackend.Model.response.UserProfileResponse;
 import com.booklog.booklogbackend.Model.vo.UserVO;
 import com.booklog.booklogbackend.config.JwtTokenProvider;
 import com.booklog.booklogbackend.exception.AlreadyExistException;
+import com.booklog.booklogbackend.exception.NotFoundException;
 import com.booklog.booklogbackend.exception.UserLoginException;
 import com.booklog.booklogbackend.exception.UserRegisterException;
 import com.booklog.booklogbackend.mapper.RefreshTokenMapper;
@@ -111,8 +112,12 @@ public class AuthService {
                 throw new UserLoginException("유효하지 않은 이메일 또는 비밀번호입니다.");
             }
 
-            if (loginUser.getIsVerified() != VerificationStatus.VERIFIED) {
+            if (!VerificationStatus.VERIFIED.equals(loginUser.getIsVerified())) {
                 throw new UserLoginException("이메일 인증이 완료되지 않았습니다.");
+            }
+
+            if (!loginUser.isActive()) {
+                throw new UserLoginException("관리자에 의해 접근 제한된 계정입니다.");
             }
 
             String accessToken = jwtTokenProvider.generateAccessToken(email);
@@ -173,7 +178,7 @@ public class AuthService {
             if (user == null) {
                 log.debug("User not found for tokenId: {}", tokenId);
                 refreshTokenMapper.deleteByTokenId(tokenId); // 로그아웃 처리
-                throw new IllegalArgumentException("User not found");
+                throw new NotFoundException("사용자를 찾을 수 없습니다");
             }
 
             return jwtTokenProvider.generateAccessToken(user.getEmail());
