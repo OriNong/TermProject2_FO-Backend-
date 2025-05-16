@@ -6,6 +6,7 @@ import com.booklog.booklogbackend.Model.response.BookcaseResponse;
 import com.booklog.booklogbackend.Model.vo.BookVO;
 import com.booklog.booklogbackend.Model.vo.BookcaseVO;
 import com.booklog.booklogbackend.Model.vo.BookcaseWithBookVO;
+import com.booklog.booklogbackend.exception.NotFoundException;
 import com.booklog.booklogbackend.mapper.BookMapper;
 import com.booklog.booklogbackend.mapper.BookcaseMapper;
 import com.booklog.booklogbackend.service.BookcaseService;
@@ -112,7 +113,7 @@ public class BookcaseServiceImpl implements BookcaseService {
         BookcaseVO existing = bookcaseMapper.selectBookcaseStatus(userId, bookId);
 
         if (existing == null) {
-            throw new IllegalStateException("서재에 등록되지 않은 도서입니다.");
+            throw new NotFoundException("서재에 등록되지 않은 도서입니다.");
         }
 
         BookcaseVO update = BookcaseVO.builder()

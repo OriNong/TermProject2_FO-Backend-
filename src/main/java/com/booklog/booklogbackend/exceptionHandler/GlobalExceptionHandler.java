@@ -1,7 +1,6 @@
 package com.booklog.booklogbackend.exceptionHandler;
 
-import com.booklog.booklogbackend.exception.JwtAuthenticationException;
-import com.booklog.booklogbackend.exception.NaverApiException;
+import com.booklog.booklogbackend.exception.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -57,6 +56,48 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         logger.error("Naver API error: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(body);
+    }
+
+    // 로그인 시 예외 처리
+    @ExceptionHandler(UserLoginException.class)
+    public ResponseEntity<Object> handleUserLoginException(UserLoginException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("message", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(body);
+    }
+
+    // 회원가입 시 예외 처리
+    @ExceptionHandler(UserRegisterException.class)
+    public ResponseEntity<Object> handleUserRegisterException(UserRegisterException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("message", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(body);
+    }
+
+    // 이메일 인증 관련 예외 처리
+    @ExceptionHandler(EmailVerificationException.class)
+    public ResponseEntity<Object> handleEmailVerificationException(EmailVerificationException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(body);
+    }
+
+    // NotFount 예외 처리
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<Object> handleNotFoundException(NotFoundException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    // AlreadyExist
+    @ExceptionHandler(AlreadyExistException.class)
+    public ResponseEntity<Object> handleAlreadyExistException(AlreadyExistException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
     // 컨트롤러 수행 중 발생한 예외 처리
