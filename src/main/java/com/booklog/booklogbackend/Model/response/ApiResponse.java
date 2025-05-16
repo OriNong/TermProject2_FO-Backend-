@@ -1,6 +1,12 @@
 package com.booklog.booklogbackend.Model.response;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class ApiResponse {
+    // Getter 및 Setter
     private boolean success;
     private String message;
 
@@ -9,20 +15,4 @@ public class ApiResponse {
         this.message = message;
     }
 
-    // Getter 및 Setter
-    public boolean isSuccess() {
-        return success;
-    }
-
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
 }
