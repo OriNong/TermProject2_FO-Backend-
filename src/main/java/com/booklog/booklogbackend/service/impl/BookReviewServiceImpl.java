@@ -6,12 +6,12 @@ import com.booklog.booklogbackend.Model.request.BookReviewUpdateRequest;
 import com.booklog.booklogbackend.Model.response.*;
 import com.booklog.booklogbackend.Model.vo.BookReviewVO;
 import com.booklog.booklogbackend.Model.vo.BookVO;
+import com.booklog.booklogbackend.exception.NotFoundException;
 import com.booklog.booklogbackend.mapper.BookMapper;
 import com.booklog.booklogbackend.mapper.BookReviewMapper;
 import com.booklog.booklogbackend.mapper.BookcaseMapper;
 import com.booklog.booklogbackend.service.BookReviewService;
 import lombok.RequiredArgsConstructor;
-import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -112,10 +112,11 @@ public class BookReviewServiceImpl implements BookReviewService {
     public void deleteReview(Long reviewId, Long userId) {
         BookReviewVO existing = bookReviewMapper.selectByReviewId(reviewId);
         if (existing == null) {
-            throw new RuntimeException("해당 리뷰를 찾을 수 없습니다.");
+            throw new NotFoundException("해당 리뷰를 찾을 수 없습니다.");
         }
 
         if (!existing.getUserId().equals(userId)) {
+            // BadRequestException 커스텀
             throw new AccessDeniedException("리뷰 삭제 권한이 없습니다.");
         }
         bookReviewMapper.deleteReview(reviewId);
@@ -126,7 +127,12 @@ public class BookReviewServiceImpl implements BookReviewService {
      */
     @Override
     public List<BookReviewResponse> getReviewsByBookId(Long bookId, Long userId) {
-        return bookReviewMapper.selectReviewByBookId(bookId, userId);
+        try {
+            return bookReviewMapper.selectReviewByBookId(bookId, userId);
+        } catch ( Exception e ) {
+            throw new NotFoundException("리뷰 목록 조회에 실패했습니다.");
+        }
+
     }
 
     /**
