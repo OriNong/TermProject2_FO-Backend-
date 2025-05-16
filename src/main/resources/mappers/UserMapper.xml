@@ -24,7 +24,8 @@
                email             AS email,
                password          AS password,
                nickname          AS nickname,
-               is_email_verified AS isVerified
+               is_email_verified AS isVerified,
+               is_active         AS isActive
         FROM user
         WHERE email = #{email}
     </select>
@@ -35,10 +36,12 @@
             email               AS email,
             nickname            AS nickname,
             is_email_verified   AS isVerified,
+            is_active           AS isActive,
             created_at          AS createdAt,
             updated_at          AS updatedAt
         FROM user
         WHERE user_id = #{userId}
+            AND is_active = TRUE
     </select>
 
     <select id="findByTokenId" parameterType="string" resultType="com.booklog.booklogbackend.Model.vo.UserVO">
@@ -46,10 +49,12 @@
                u.email             AS email,
                u.password          AS password,
                u.nickname          AS nickname,
-               u.is_email_verified AS isVerified
+               u.is_email_verified AS isVerified,
+               u.is_active         AS isActive
         FROM user u
         JOIN refresh_tokens rt ON u.user_id = rt.user_id
         WHERE rt.token_id = #{tokenId}
+            AND u.is_active = TRUE
     </select>
 
     <select id="existsByEmail" parameterType="string" resultType="boolean">
