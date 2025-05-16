@@ -76,7 +76,7 @@ public class BookController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long bookId
     ) {
-        Long userId = userDetails.getUser().getUserId();
+        Long userId = userDetails.getUserId();
         String status = bookService.getReadingStatus(userId, bookId);
 
         if (status == null) {
