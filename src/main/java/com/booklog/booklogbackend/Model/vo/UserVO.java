@@ -26,4 +26,5 @@ public class UserVO {
     private VerificationStatus isVerified;      // 이메일 인증 여부
     private LocalDateTime createdAt;            // 사용자 회원 가입 일자
     private LocalDateTime updatedAt;            // 사용자 정보 수정 일자
+    private boolean isActive;                   // 계정 활성화 여부
 }
