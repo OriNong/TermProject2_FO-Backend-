@@ -2,7 +2,9 @@ package com.booklog.booklogbackend.controller.auth;
 
 import com.booklog.booklogbackend.Model.CustomUserDetails;
 import com.booklog.booklogbackend.Model.VerificationStatus;
+import com.booklog.booklogbackend.Model.request.EmailVerificationRequest;
 import com.booklog.booklogbackend.Model.request.LoginRequest;
+import com.booklog.booklogbackend.Model.request.ResetPasswordRequest;
 import com.booklog.booklogbackend.Model.request.TokenRefreshRequest;
 import com.booklog.booklogbackend.Model.response.AccessTokenRefreshResponse;
 import com.booklog.booklogbackend.Model.response.ApiResponse;
@@ -10,6 +12,9 @@ import com.booklog.booklogbackend.Model.response.LoginSuccessResponse;
 import com.booklog.booklogbackend.Model.response.UserProfileResponse;
 import com.booklog.booklogbackend.Model.vo.UserVO;
 import com.booklog.booklogbackend.service.auth.AuthService;
+import com.booklog.booklogbackend.service.auth.EmailVerificationService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,13 +25,13 @@ import java.util.Map;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/auth")
 public class AuthController {
     private final AuthService authService;
+    private final EmailVerificationService emailVerificationService;
 
-    public AuthController(AuthService authService) {
-        this.authService = authService;
-    }
+
 
     /**
      * 이메일 중복 확인
@@ -93,7 +98,7 @@ public class AuthController {
      * @return : LoginSuccessResponse{accessToken, refreshToken, nickname}
      */
     @PostMapping("/login")
-    public ResponseEntity<LoginSuccessResponse> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<LoginSuccessResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         LoginSuccessResponse loginSuccess = authService.login(loginRequest.getEmail(), loginRequest.getPassword());
         return ResponseEntity.ok(loginSuccess);
     }
@@ -117,7 +122,7 @@ public class AuthController {
      * @return
      */
     @PostMapping("/refresh")
-    public ResponseEntity<AccessTokenRefreshResponse> refresh(@RequestBody TokenRefreshRequest request) {
+    public ResponseEntity<AccessTokenRefreshResponse> refresh(@Valid @RequestBody TokenRefreshRequest request) {
         if (request.getRefreshToken() == null) {
             throw new IllegalArgumentException("refresh token is null");
         }
@@ -143,4 +148,37 @@ public class AuthController {
         authService.logout(userId);
         return ResponseEntity.ok("User logged out successfully");
     }
+
+    // 비밀번호 찾기 로직 총 3단계로 구성
+
+    /**
+     * 비밀번호 재설정을 위한 인증 코드 발송
+     * @param email : 사용자 가입 이메일
+     */
+    @PostMapping("/forgot-password/send-code")
+    public ResponseEntity<String> sendPasswordResetCode(@RequestParam String email) {
+        emailVerificationService.sendPasswordResetCode(email); // 이메일 발송 및 Redis 저장
+        return ResponseEntity.ok("비밀번호 재설정 코드가 전송되었습니다.");
+    }
+
+    /**
+     * 비밀번호 재설정 인증 코드 인증 확인
+     * @param request : EmailVerificationRequest.java
+     */
+    @PostMapping("/forgot-password/verify-code")
+    public ResponseEntity<String> verifyPasswordResetCode(@Valid @RequestBody EmailVerificationRequest request) {
+        emailVerificationService.verifyPasswordResetCode(request.getEmail(), request.getCode()); // Redis에서 코드 검증
+        return ResponseEntity.ok("인증되었습니다.");
+    }
+
+    /**
+     * 비밀번호 재설정
+     * @param request : ResetPasswordRequest.java
+     */
+    @PostMapping("/forgot-password/reset")
+    public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request.getEmail(), request.getNewPassword()); // 비밀번호 변경
+        return ResponseEntity.ok("비밀번호가 성공적으로 재설정되었습니다.");
+    }
+
 }

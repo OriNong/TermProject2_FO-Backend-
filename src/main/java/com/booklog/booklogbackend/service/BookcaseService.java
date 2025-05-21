@@ -1,7 +1,9 @@
 package com.booklog.booklogbackend.service;
 
 import com.booklog.booklogbackend.Model.request.BookRegisterRequest;
+import com.booklog.booklogbackend.Model.response.BookReviewResponse;
 import com.booklog.booklogbackend.Model.response.BookcaseResponse;
+import com.booklog.booklogbackend.Model.response.ReviewIdByBookIdResponse;
 import com.booklog.booklogbackend.Model.vo.BookcaseVO;
 
 import java.util.List;
@@ -17,6 +19,12 @@ public interface BookcaseService {
     // 서재에 '독서 중'으로 등록되어 있는 도서 독서 완료 처리
     void finishReading(Long userId, Long bookId);
 
+    // 독서 상태 되돌리기
+    void updateReadingStatus(Long userId, Long bookcaseId);
+
+    // 서재 등록 도서 삭제
+    void deleteBookcase(Long userId, Long bookcaseId);
+
     // 사용자 서재 전체 정보 조회
     public List<BookcaseResponse> getBookcaseByUser(Long userId);
 
@@ -24,4 +32,6 @@ public interface BookcaseService {
     BookcaseVO getBookcaseStatus(Long userId, Long bookId);
 
     void upsertBookcase(BookcaseVO bookcaseVO);
+
+    ReviewIdByBookIdResponse getReviewByUserAndBook(Long userId, Long bookId);
 }

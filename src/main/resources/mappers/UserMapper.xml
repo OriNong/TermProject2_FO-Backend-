@@ -44,6 +44,7 @@
             AND is_active = TRUE
     </select>
 
+    <!-- 리프레시 토큰으로 사용자 정보 조회 -->
     <select id="findByTokenId" parameterType="string" resultType="com.booklog.booklogbackend.Model.vo.UserVO">
         SELECT u.user_id           AS userId,
                u.email             AS email,
@@ -57,16 +58,45 @@
             AND u.is_active = TRUE
     </select>
 
+    <!-- 이메일로 사용자 유/무 조회 -->
     <select id="existsByEmail" parameterType="string" resultType="boolean">
         SELECT COUNT(*) > 0
         FROM user
         WHERE email = #{email}
     </select>
 
+    <!-- 닉네임으로 사용자 유/무 조회 -->
     <select id="existsByNickname" parameterType="string" resultType="boolean">
         SELECT COUNT(*) > 0
         FROM user
         WHERE nickname = #{nickname}
     </select>
 
+    <!-- userId로 Password 조회 -->
+    <select id="getPasswordById" resultType="string">
+        SELECT password             -- 사용자 비밀번호
+        FROM user                   -- 사용자 정보 테이블
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 사용자 비밀번호 변경 -->
+    <update id="updatePassword">
+        UPDATE user
+        SET password = #{newPassword}
+        WHERE user_id = #{userId}
+    </update>
+
+    <!-- 사용자 닉네임 변경 -->
+    <update id="updateNickname">
+        UPDATE user
+        SET nickname = #{nickname}
+        WHERE user_id = #{userId}
+    </update>
+
+    <!-- 사용자 비밀번호 변경 -->
+    <update id="updatePasswordByEmail">
+        UPDATE user
+        SET password = #{password}
+        WHERE email = #{email}
+    </update>
 </mapper>

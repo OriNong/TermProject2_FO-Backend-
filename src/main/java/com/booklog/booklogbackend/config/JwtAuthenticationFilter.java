@@ -41,7 +41,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/auth/check-nickname",
             "/api/auth/send-email",
             "/api/auth/verify-email",
-            "/api/books/public/**"
+            "/api/auth/forgot-password/send-code",
+            "/api/auth/forgot-password/verify-code",
+            "/api/auth/forgot-password/reset"
     );
 
     // 이메일 인증 완료 여부가 필요 없는 경로 목록 (인증은 필요하지만 이메일 검증은 불필요)
@@ -78,6 +80,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // 검증 통과 시 인증 처리
             String email = jwtTokenProvider.getEmailFromToken(token);
+
             var userDetails = (CustomUserDetails) customUserDetailService.loadUserByUsername(email);
 
             // 이메일 인증 상태 확인
@@ -103,7 +106,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 기타 예외 처리
             logger.error("인증 처리 중 오류 발생: {}", e.getMessage());
             SecurityContextHolder.clearContext();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json;charset=UTF-8");
 
             Map<String, Object> errorDetails = new HashMap<>();

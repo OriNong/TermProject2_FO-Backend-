@@ -19,6 +19,7 @@
     </select>
 
     <!-- 서재의 도서 읽기 상태 변경 (독서 시작/독서 완료) -->
+    <!-- 조건 분기 서비스에서 수행  값만 대입-->
     <update id="updateBookcaseStatus">
         UPDATE bookcase
         SET reading_status = #{readingStatus},
@@ -64,11 +65,13 @@
             b.book_title            AS bookTitle,
             b.book_img              AS bookImg,
             b.book_author           AS bookAuthor,
+            bc.bookcase_id          AS bookcaseId,
             bc.reading_status       AS readingStatus,
             bc.reading_started_at   AS readingStartedAt,
             bc.reading_finished_at  AS readingFinishedAt
         FROM bookcase bc
-                 JOIN books b ON bc.book_id = b.book_id
+        JOIN books b
+            ON bc.book_id = b.book_id
         WHERE bc.user_id = #{userId}
         ORDER BY bc.updated_at DESC
     </select>
@@ -82,5 +85,42 @@
           AND reading_status = #{status}
     </select>
 
+    <!-- 읽기 상태 되돌리기 처리 -->
+    <update id="updateReadingStatusWithDates">
+        UPDATE bookcase
+        SET reading_status = #{readingStatus},
+            reading_started_at = CASE
+                                     WHEN #{readingStatus} = 'READING' THEN CURRENT_TIMESTAMP
+                                     WHEN #{readingStatus} = 'TO_READ' THEN NULL
+                                     ELSE reading_started_at
+                END,
+            reading_finished_at = CASE
+                                      WHEN #{readingStatus} IN ('READING', 'TO_READ') THEN NULL
+                                      ELSE reading_finished_at
+                END,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE bookcase_id = #{bookcaseId}
+    </update>
+
+    <!-- 서재 고유 id로 서재 조회 -->
+    <select id="selectBookcaseById" resultType="com.booklog.booklogbackend.Model.vo.BookcaseVO">
+        SELECT
+            bookcase_id             AS bookcaseId,
+            user_id                 AS userId,
+            book_id                 AS bookId,
+            reading_status          AS readingStatus,
+            reading_started_at      AS readingStartedAt,
+            reading_finished_at     AS readingFinishedAt,
+            created_at              AS createdAt,
+            updated_at              AS updatedAt
+        FROM bookcase
+        WHERE bookcase_id = #{bookcaseId}
+    </select>
+
+    <!-- 서재 고유 id로 서재 삭제 -->
+    <delete id="deleteBookcaseById">
+        DELETE FROM bookcase
+        WHERE bookcase_id = #{bookcaseId}
+    </delete>
 
 </mapper>

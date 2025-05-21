@@ -9,6 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class BookcaseResponse {
+    private Long bookcaseId;
     private Long bookId;
     private String bookTitle;
     private String bookImg;

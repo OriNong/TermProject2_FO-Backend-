@@ -39,10 +39,9 @@
             b.book_img                  AS bookImg,
             ROUND(AVG(r.rating), 1)     AS rating,
             COUNT(r.review_id)          AS reviewCount
-        FROM
-            books b
-                JOIN
-            book_review r ON b.book_id = r.book_id
+        FROM books b
+        JOIN book_review r
+        ON b.book_id = r.book_id
         GROUP BY
             b.book_id, b.book_title, b.book_author, b.book_img
         ORDER BY
@@ -67,7 +66,7 @@
             bookcase
         WHERE
             book_id = #{bookId}
-          AND reading_status = #{status}
+        AND reading_status = #{status}
     </select>
 
     <!-- 서재에서 readingStaus만 조회 -->

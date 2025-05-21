@@ -11,8 +11,7 @@ public class EmailVerificationRequest {
 
     @Email
     @NotBlank(message = "Email cannot be blank")
-    private String email;
+    private String email;   // 이메일
 
-    @NotBlank(message = "Code cannot be blank")
-    private String code;
+    private String code;    // 인증 코드
 }

@@ -11,10 +11,6 @@ import java.util.List;
 @Mapper
 public interface BookcaseMapper {
 
-    BookVO findByIsbn(String isbn);
-
-    void insertBook(BookVO bookVO);
-
     // 읽기 상태 조회
     BookcaseVO selectBookcaseStatus(@Param("userId") Long userId, @Param("bookId") Long bookId);
 
@@ -25,9 +21,15 @@ public interface BookcaseMapper {
     int insertBookcase(BookcaseVO bookcaseVO);
 
     // 사용자의 서재 전체 정보 조회
-    List<BookcaseWithBookVO> selectBookcaseByUserId(Long userId);
+    List<BookcaseWithBookVO> selectBookcaseByUserId(@Param("userId") Long userId);
 
     // 리뷰 작성 시 도서 읽기 상태가 COMPLETED인지 조회
         // true: COMPLETED, false: TO_READ || READING
     boolean isBookReadCompleted(@Param("userId") Long userId, @Param("bookId") Long bookId, @Param("status") String status);
+
+    BookcaseVO selectBookcaseById(@Param("bookcaseId") Long bookcaseId);
+
+    void updateReadingStatusWithDates(@Param("bookcaseId") Long bookcaseId, @Param("readingStatus") String readingStatus);
+
+    void deleteBookcaseById(@Param("bookcaseId") Long bookcaseId);
 }

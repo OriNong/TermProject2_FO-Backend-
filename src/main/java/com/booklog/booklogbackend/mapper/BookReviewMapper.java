@@ -3,6 +3,7 @@ package com.booklog.booklogbackend.mapper;
 import com.booklog.booklogbackend.Model.response.BookReviewDetailResponse;
 import com.booklog.booklogbackend.Model.response.BookReviewResponse;
 import com.booklog.booklogbackend.Model.response.MyReviewResponse;
+import com.booklog.booklogbackend.Model.response.ReviewIdByBookIdResponse;
 import com.booklog.booklogbackend.Model.vo.BookReviewVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -35,5 +36,7 @@ public interface BookReviewMapper {
 
     // 사용자가 작성한 리뷰 목록 조회
     List<MyReviewResponse> selectMyReviews(Long userId);
+
+    ReviewIdByBookIdResponse getReviewIdByBookAndUserId(@Param("userId") Long userId, @Param("bookId") Long bookId);
 
 }

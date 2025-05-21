@@ -1,7 +1,9 @@
 package com.booklog.booklogbackend.mapper;
 
+import com.booklog.booklogbackend.Model.request.ReportUpdateRequest;
 import com.booklog.booklogbackend.Model.request.ReviewReportRequest;
 import com.booklog.booklogbackend.Model.response.ReviewReportResponse;
+import jakarta.validation.Valid;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -23,7 +25,7 @@ public interface ReportMapper {
     boolean isEditable(@Param("userId") Long userId, @Param("reportId") Long reportId);
 
     // 신고 수정
-    void updateReport(@Param("userId") Long userId, @Param("reportId") Long reportId, @Param("request") ReviewReportRequest request);
+    void updateReport(@Param("userId") Long userId, @Param("reportId") Long reportId, @Param("request") @Valid ReportUpdateRequest request);
 
     // 신고 취소 (Hard Delete)
     void deleteReport(@Param("userId") Long userId, @Param("reportId") Long reportId);

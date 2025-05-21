@@ -6,12 +6,10 @@ import com.booklog.booklogbackend.Model.response.LoginSuccessResponse;
 import com.booklog.booklogbackend.Model.response.UserProfileResponse;
 import com.booklog.booklogbackend.Model.vo.UserVO;
 import com.booklog.booklogbackend.config.JwtTokenProvider;
-import com.booklog.booklogbackend.exception.AlreadyExistException;
-import com.booklog.booklogbackend.exception.NotFoundException;
-import com.booklog.booklogbackend.exception.UserLoginException;
-import com.booklog.booklogbackend.exception.UserRegisterException;
+import com.booklog.booklogbackend.exception.*;
 import com.booklog.booklogbackend.mapper.RefreshTokenMapper;
 import com.booklog.booklogbackend.mapper.UserMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,20 +22,15 @@ import java.util.Map;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class AuthService {
+    private final EmailVerificationService emailVerificationService;
     private final UserMapper userMapper;
     private final RefreshTokenMapper refreshTokenMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final StringRedisTemplate redisTemplate;
 
-    public AuthService(UserMapper userMapper, RefreshTokenMapper refreshTokenMapper, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, StringRedisTemplate redisTemplate) {
-        this.userMapper = userMapper;
-        this.refreshTokenMapper = refreshTokenMapper;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.redisTemplate = redisTemplate;
-    }
 
     // 이메일 인증 확인을 위한 키 접두어 (EmailVerificationService와 동일한 접두어 사용)
     private static final String EMAIL_VERIFICATION_PREFIX = "email:verify:";
@@ -66,7 +59,7 @@ public class AuthService {
             // 이메일 인증 확인
             if (!isEmailVerified(user.getEmail())) {
                 log.debug("Email not verified: {}", user.getEmail());
-                throw new IllegalArgumentException("Email verification required");
+                throw new EmailVerificationException("Email verification required");
             }
 
             // 비밀번호 암호화
@@ -136,6 +129,21 @@ public class AuthService {
     }
 
     /**
+     * 비밀번호 재설정
+     * @param email : 사용자 가입 이메일
+     * @param newPassword : 새로운 비밀번호
+     */
+    public void resetPassword(String email, String newPassword) {
+        if (!emailVerificationService.isPasswordResetVerified(email)) {
+            throw new EmailVerificationException("이메일 인증이 완료되지 않았습니다.");
+        }
+
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        userMapper.updatePasswordByEmail(email, encodedPassword);
+        redisTemplate.delete("password:reset:verified:" + email); // 인증 완료 -> 삭제
+    }
+
+    /**
      * 사용자 프로필 리턴
      * @return : email, nickname, createdAt, updatedAt
      */
@@ -143,12 +151,12 @@ public class AuthService {
         try{
             UserProfileResponse loginUser = userMapper.findByUserId(userId);
             if (loginUser == null) {
-                throw new IllegalArgumentException("User not found");
+                throw new NotFoundException("사용자를 찾을 수 없습니다");
             }
             return loginUser;
         } catch (Exception e) {
             log.error("Error in findByUserId {}: {}", userId, e.getMessage(), e);
-            throw new RuntimeException("Failed to find User: " + e.getMessage(), e);
+            throw new NotFoundException("사용자를 찾을 수 없습니다");
         }
     }
 

@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -99,6 +101,33 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         body.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
+
+    // BadRequest
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<Object> handleBadRequestException(BadRequestException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    // @Valid 검증 실패 시 예외 처리
+//    @ExceptionHandler(MethodArgumentNotValidException.class)
+//    public ResponseEntity<Object> handleValidationException(MethodArgumentNotValidException ex) {
+//        Map<String, Object> body = new HashMap<>();
+//        Map<String, String> errors = new HashMap<>();
+//
+//        for (FieldError error : ex.getBindingResult().getFieldErrors()) {
+//            errors.put(error.getField(), error.getDefaultMessage());
+//        }
+//
+//        body.put("message", "입력값 검증에 실패했습니다.");
+//        body.put("errors", errors);
+//        body.put("code", "VALIDATION_FAILED");
+//
+//        logger.warn("Validation error: {}", errors);
+//
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+//    }
 
     // 컨트롤러 수행 중 발생한 예외 처리
     @ExceptionHandler(Exception.class)

@@ -3,11 +3,13 @@ package com.booklog.booklogbackend.service.impl;
 import com.booklog.booklogbackend.Model.BookReadingStatus;
 import com.booklog.booklogbackend.Model.request.BookRegisterRequest;
 import com.booklog.booklogbackend.Model.response.BookcaseResponse;
+import com.booklog.booklogbackend.Model.response.ReviewIdByBookIdResponse;
 import com.booklog.booklogbackend.Model.vo.BookVO;
 import com.booklog.booklogbackend.Model.vo.BookcaseVO;
 import com.booklog.booklogbackend.Model.vo.BookcaseWithBookVO;
 import com.booklog.booklogbackend.exception.NotFoundException;
 import com.booklog.booklogbackend.mapper.BookMapper;
+import com.booklog.booklogbackend.mapper.BookReviewMapper;
 import com.booklog.booklogbackend.mapper.BookcaseMapper;
 import com.booklog.booklogbackend.service.BookcaseService;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ public class BookcaseServiceImpl implements BookcaseService {
 
     private final BookcaseMapper bookcaseMapper;
     private final BookMapper bookMapper;
+    private final BookReviewMapper bookReviewMapper;
 
     /**
      * 사용자가 '읽을 목록에 추가' 선택 시 사용자 서재에 도서 신규 등록
@@ -125,6 +128,37 @@ public class BookcaseServiceImpl implements BookcaseService {
     }
 
     /**
+     * DB에서 사용자의 등록 도서 정보를 서재 고유 id로 조회하여 현재 읽기 상태 반환
+     * 읽기 상태를 기준으로 이전 읽기 상태 스텝으로 변경 처리
+     */
+    @Override
+    public void updateReadingStatus(Long userId, Long bookcaseId) {
+        BookcaseVO current = bookcaseMapper.selectBookcaseById(bookcaseId);
+        if (current == null || !current.getUserId().equals(userId)) {
+            throw new NotFoundException("서재 정보를 찾을 수 없거나 권한이 없습니다.");
+        }
+
+        BookReadingStatus currentStatus = current.getReadingStatus();
+        BookReadingStatus newStatus = switch (currentStatus) {
+            case COMPLETED -> BookReadingStatus.READING;
+            case READING -> BookReadingStatus.TO_READ;
+            case TO_READ -> throw new IllegalStateException("이미 '읽을 목록' 상태입니다. 더 이상 되돌릴 수 없습니다.");
+            default -> throw new IllegalArgumentException("알 수 없는 상태입니다: " + currentStatus);
+        };
+
+        bookcaseMapper.updateReadingStatusWithDates(bookcaseId, newStatus.name());
+    }
+
+    @Override
+    public void deleteBookcase(Long userId, Long bookcaseId) {
+        BookcaseVO current = bookcaseMapper.selectBookcaseById(bookcaseId);
+        if (current == null || !current.getUserId().equals(userId)) {
+            throw new NotFoundException("서재 정보를 찾을 수 없거나 권한이 없습니다.");
+        }
+        bookcaseMapper.deleteBookcaseById(bookcaseId);
+    }
+
+    /**
      * 로그인 사용자가 서재 페이지 접속 시 해당 사용자의 서재 전체 정보 로드
      * @param userId : 로그인 사용자 id
      * @return : BookcaseResponse -> 프론트엔드 렌더링 처리를 최적화 한 Response 클래스
@@ -149,7 +183,8 @@ public class BookcaseServiceImpl implements BookcaseService {
             }
 
             return BookcaseResponse.builder()
-                    .bookId(joined.getBookId())
+                    .bookcaseId(joined.getBookcaseId()) // 읽기 상태 되돌리기를 위해 id 반환 추가
+                    .bookId(joined.getBookId()) // isbn 추가
                     .bookTitle(joined.getBookTitle())
                     .bookImg(joined.getBookImg())
                     .bookAuthor(joined.getBookAuthor())
@@ -157,6 +192,28 @@ public class BookcaseServiceImpl implements BookcaseService {
                     .statusText(statusText)
                     .build();
         }).toList();
+    }
+
+    /**
+     * 도서 id와 사용자 id로 reviewId 조회하여 반환
+     * @param userId
+     * @param bookId
+     * @return
+     */
+    @Override
+    public ReviewIdByBookIdResponse getReviewByUserAndBook(Long userId, Long bookId) {
+        boolean isReviewExist = bookReviewMapper.isReviewExist(userId, bookId);
+        if (isReviewExist) {
+            ReviewIdByBookIdResponse response = bookReviewMapper.getReviewIdByBookAndUserId(userId, bookId);
+            response.setExists("EXIST");
+            return response;
+        } else {
+            return ReviewIdByBookIdResponse.builder()
+                    .reviewId(null)
+                    .bookId(bookId)
+                    .exists("NOT_EXIST")
+                    .build();
+        }
     }
 
     @Override

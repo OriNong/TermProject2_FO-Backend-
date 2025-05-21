@@ -1,5 +1,6 @@
 package com.booklog.booklogbackend.controller.review;
 
+import com.booklog.booklogbackend.Model.request.ReportUpdateRequest;
 import com.booklog.booklogbackend.Model.request.ReviewReportRequest;
 import com.booklog.booklogbackend.Model.response.ReviewReportResponse;
 import com.booklog.booklogbackend.service.ReportService;
@@ -47,7 +48,7 @@ public class ReportController {
     public ResponseEntity<Void> updateReport(
             @PathVariable Long reportId,
             @AuthenticationPrincipal(expression = "userId") Long userId,
-            @Valid @RequestBody ReviewReportRequest request
+            @Valid @RequestBody ReportUpdateRequest request
     ) {
         reportService.updateMyReport(userId, reportId, request);
         return ResponseEntity.ok().build();

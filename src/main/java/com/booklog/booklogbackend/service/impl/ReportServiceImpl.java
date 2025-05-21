@@ -1,10 +1,12 @@
 package com.booklog.booklogbackend.service.impl;
 
+import com.booklog.booklogbackend.Model.request.ReportUpdateRequest;
 import com.booklog.booklogbackend.Model.request.ReviewReportRequest;
 import com.booklog.booklogbackend.Model.response.ReviewReportResponse;
 import com.booklog.booklogbackend.exception.BadRequestException;
 import com.booklog.booklogbackend.mapper.ReportMapper;
 import com.booklog.booklogbackend.service.ReportService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +37,7 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
-    public void updateMyReport(Long userId, Long reportId, ReviewReportRequest request) {
+    public void updateMyReport(Long userId, Long reportId, @Valid ReportUpdateRequest request) {
         if (!reportMapper.isEditable(userId, reportId)) {
             throw new BadRequestException("이미 관리자가 처리 완료하여 수정할 수 없습니다.");
         }

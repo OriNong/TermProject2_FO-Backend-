@@ -46,6 +46,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/verify-email").permitAll()
                         .requestMatchers("/api/auth/register").permitAll()
                         .requestMatchers("/api/auth/refresh").permitAll()
+                        .requestMatchers("/api/auth/forgot-password/**").permitAll()
                         // 프론트 오피스는 단순 인증만 필요, 권한 체크는 하지 않음
                         // authenticated()는 인증만 확인하고 권한은 체크하지 않음
                         .anyRequest().authenticated()

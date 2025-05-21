@@ -16,6 +16,7 @@ public class BookcaseWithBookVO {
     private String bookImg;
     private String bookAuthor;
 
+    private Long bookcaseId;
     private BookReadingStatus readingStatus;
     private LocalDateTime readingStartedAt;
     private LocalDateTime readingFinishedAt;
