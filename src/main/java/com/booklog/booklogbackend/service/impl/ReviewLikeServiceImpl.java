@@ -4,7 +4,6 @@ import com.booklog.booklogbackend.Model.response.ReviewLikeResponse;
 import com.booklog.booklogbackend.mapper.ReviewLikeMapper;
 import com.booklog.booklogbackend.service.ReviewLikeService;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
