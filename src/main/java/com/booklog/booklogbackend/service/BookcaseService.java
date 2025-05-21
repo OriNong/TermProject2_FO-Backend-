@@ -31,7 +31,6 @@ public interface BookcaseService {
     // 사용자 서재에 등록된 특정 도서에 대한 독서 상태 조회
     BookcaseVO getBookcaseStatus(Long userId, Long bookId);
 
-    void upsertBookcase(BookcaseVO bookcaseVO);
-
+    // UserId와 BookId로 리뷰 Id 반환
     ReviewIdByBookIdResponse getReviewByUserAndBook(Long userId, Long bookId);
 }

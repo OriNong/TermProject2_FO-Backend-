@@ -220,27 +220,4 @@ public class BookcaseServiceImpl implements BookcaseService {
     public BookcaseVO getBookcaseStatus(Long userId, Long bookId) {
         return bookcaseMapper.selectBookcaseStatus(userId, bookId);
     }
-
-    @Override
-    public void upsertBookcase(BookcaseVO bookcaseVO) {
-        BookcaseVO existing = bookcaseMapper.selectBookcaseStatus(bookcaseVO.getUserId(), bookcaseVO.getBookId());
-
-        if (existing == null) {
-            // 새로 등록할 경우 시작/종료일 세팅
-            if (BookReadingStatus.READING.equals(bookcaseVO.getReadingStatus())) {
-                bookcaseVO.setReadingStartedAt(LocalDateTime.now());
-            } else if (BookReadingStatus.COMPLETED.equals(bookcaseVO.getReadingStatus())) {
-                bookcaseVO.setReadingFinishedAt(LocalDateTime.now());
-            }
-            bookcaseMapper.insertBookcase(bookcaseVO);
-        } else {
-            // 상태 변경 시 날짜 갱신
-            if (BookReadingStatus.READING.equals(bookcaseVO.getReadingStatus()) && existing.getReadingStartedAt() == null) {
-                bookcaseVO.setReadingStartedAt(LocalDateTime.now());
-            } else if (BookReadingStatus.COMPLETED.equals(bookcaseVO.getReadingStatus()) && existing.getReadingFinishedAt() == null) {
-                bookcaseVO.setReadingFinishedAt(LocalDateTime.now());
-            }
-            bookcaseMapper.updateBookcaseStatus(bookcaseVO);
-        }
-    }
 }
