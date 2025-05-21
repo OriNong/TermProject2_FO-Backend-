@@ -3,10 +3,10 @@ package com.booklog.booklogbackend.service.impl;
 import com.booklog.booklogbackend.Model.request.ReviewCommentRequest;
 import com.booklog.booklogbackend.Model.response.ReviewCommentResponse;
 import com.booklog.booklogbackend.Model.vo.ReviewCommentVO;
+import com.booklog.booklogbackend.exception.BadRequestException;
 import com.booklog.booklogbackend.mapper.ReviewCommentMapper;
 import com.booklog.booklogbackend.service.ReviewCommentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -77,7 +77,7 @@ public class ReviewCommentServiceImpl implements ReviewCommentService {
     @Override
     public void deleteComment(Long commentId, Long userId) {
         if (!reviewCommentMapper.existsByCommentIdAndUserId(commentId, userId)) {
-            throw new AccessDeniedException("삭제 권한이 없습니다.");
+            throw new BadRequestException("삭제 권한이 없습니다.");
         }
         reviewCommentMapper.deleteComment(commentId);
     }
@@ -91,7 +91,7 @@ public class ReviewCommentServiceImpl implements ReviewCommentService {
     @Override
     public void updateComment(Long commentId, Long userId, String content) {
         if (!reviewCommentMapper.existsByCommentIdAndUserId(commentId, userId)) {
-            throw new AccessDeniedException("수정 권한이 없습니다.");
+            throw new BadRequestException("수정 권한이 없습니다.");
         }
         reviewCommentMapper.updateComment(commentId, content);
     }
