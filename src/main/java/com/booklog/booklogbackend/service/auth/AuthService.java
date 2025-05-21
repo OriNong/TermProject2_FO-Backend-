@@ -171,7 +171,7 @@ public class AuthService {
                 log.debug("Invalid refresh token");
                 String tokenId = jwtTokenProvider.getTokenIdFromToken(refreshToken);
                 refreshTokenMapper.deleteByTokenId(tokenId); // 로그아웃 처리
-                throw new IllegalArgumentException("Invalid refresh token");
+                throw JwtAuthenticationException.invalid();
             }
 
             String tokenId = jwtTokenProvider.getTokenIdFromToken(refreshToken);
@@ -179,7 +179,7 @@ public class AuthService {
             if (storedToken == null || !refreshToken.equals(storedToken)) {
                 log.debug("Refresh token mismatch or not found for tokenId: {}", tokenId);
                 refreshTokenMapper.deleteByTokenId(tokenId); // 로그아웃 처리
-                throw new IllegalArgumentException("Refresh token mismatch");
+                throw JwtAuthenticationException.authenticationFailed();
             }
 
             UserVO user = userMapper.findByTokenId(tokenId); // 사용자 조회
