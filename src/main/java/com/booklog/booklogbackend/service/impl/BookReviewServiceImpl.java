@@ -6,6 +6,8 @@ import com.booklog.booklogbackend.Model.request.BookReviewUpdateRequest;
 import com.booklog.booklogbackend.Model.response.*;
 import com.booklog.booklogbackend.Model.vo.BookReviewVO;
 import com.booklog.booklogbackend.Model.vo.BookVO;
+import com.booklog.booklogbackend.exception.AlreadyExistException;
+import com.booklog.booklogbackend.exception.BadRequestException;
 import com.booklog.booklogbackend.exception.NotFoundException;
 import com.booklog.booklogbackend.mapper.BookMapper;
 import com.booklog.booklogbackend.mapper.BookReviewMapper;
@@ -35,7 +37,7 @@ public class BookReviewServiceImpl implements BookReviewService {
         BookVO book = bookMapper.getBookByBookId(bookId);
 
         if (book == null) {
-            throw new NoSuchElementException("도서 없음: " + bookId);
+            throw new NotFoundException("도서 없음: " + bookId);
         }
 
         return BookForNewReviewResponse.builder()
@@ -59,7 +61,7 @@ public class BookReviewServiceImpl implements BookReviewService {
             // false : 독서 완료되지 않음
         boolean isReadingCompleted = bookcaseMapper.isBookReadCompleted(userId, bookReviewCreateRequest.getBookId(), BookReadingStatus.COMPLETED.name());
         if (!isReadingCompleted) {
-            throw new IllegalStateException("해당 도서는 독서 완료 상태가 아닙니다.");
+            throw new BadRequestException("해당 도서는 독서 완료 상태가 아닙니다.");
         }
 
         // 사용자가 해당 도서에 리뷰를 작성한 이력이 있는지 조회
@@ -67,7 +69,7 @@ public class BookReviewServiceImpl implements BookReviewService {
             // false : 리뷰 신규 작성 가능
         boolean reviewAlreadyExists = bookReviewMapper.isReviewExist(userId, bookReviewCreateRequest.getBookId());
         if (reviewAlreadyExists) {
-            throw new IllegalStateException("이미 이 도서에 대해 리뷰를 작성하셨습니다.");
+            throw new AlreadyExistException("이미 이 도서에 대해 리뷰를 작성하셨습니다.");
         }
 
         // 도서에 새로운 리뷰 등록
@@ -91,11 +93,11 @@ public class BookReviewServiceImpl implements BookReviewService {
     public void updateReview(Long reviewId, Long userId, BookReviewUpdateRequest request) {
         BookReviewVO existing = bookReviewMapper.selectByReviewId(reviewId);
         if (existing == null) {
-            throw new RuntimeException("해당 리뷰를 찾을 수 없습니다.");
+            throw new NotFoundException("해당 리뷰를 찾을 수 없습니다.");
         }
 
         if (!existing.getUserId().equals(userId)) {
-            throw new AccessDeniedException("리뷰 수정 권한이 없습니다.");
+            throw new BadRequestException("리뷰 수정 권한이 없습니다.");
         }
 
         existing.setReviewTitle(request.getReviewTitle());
@@ -117,7 +119,7 @@ public class BookReviewServiceImpl implements BookReviewService {
 
         if (!existing.getUserId().equals(userId)) {
             // BadRequestException 커스텀
-            throw new AccessDeniedException("리뷰 삭제 권한이 없습니다.");
+            throw new BadRequestException("리뷰 삭제 권한이 없습니다.");
         }
         bookReviewMapper.deleteReview(reviewId);
     }

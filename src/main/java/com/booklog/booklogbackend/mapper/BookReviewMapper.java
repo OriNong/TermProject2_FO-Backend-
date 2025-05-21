@@ -37,6 +37,7 @@ public interface BookReviewMapper {
     // 사용자가 작성한 리뷰 목록 조회
     List<MyReviewResponse> selectMyReviews(Long userId);
 
+    // 사용자 id와 도서 id로 리뷰 id 조회 -> 사용자 서재에서 독서 완료 도서의 리뷰 작성 여부 판단
     ReviewIdByBookIdResponse getReviewIdByBookAndUserId(@Param("userId") Long userId, @Param("bookId") Long bookId);
 
 }
