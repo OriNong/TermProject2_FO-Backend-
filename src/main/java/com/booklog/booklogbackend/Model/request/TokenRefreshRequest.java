@@ -12,6 +12,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class TokenRefreshRequest {
 
-    @NotBlank(message = "RefreshToken cannot be blank")
+    @NotBlank(message = "리프레시 토큰이 누락되었습니다")
     private String refreshToken;
 }
