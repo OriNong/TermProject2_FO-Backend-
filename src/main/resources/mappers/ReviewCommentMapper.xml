@@ -19,31 +19,32 @@
     </insert>
 
     <!-- 특정 리뷰의 댓글 조회 -->
+    <!-- 대댓글 포함 2 depth 구조 -->
     <select id="selectCommentsByReviewId" resultType="com.booklog.booklogbackend.Model.vo.ReviewCommentVO">
         SELECT
-            c.comment_id AS commentId,
-            c.review_id AS reviewId,
-            c.user_id AS userId,
-            u.nickname AS userNickname,
-            c.content AS content,
-            c.parent_comment_id AS parentCommentId,
-            c.created_at AS createdAt,
-            c.is_deleted AS isDeleted
-        FROM
-            review_comments c
-                JOIN
-            user u ON c.user_id = u.user_id
+            c.comment_id AS commentId,              -- 댓글 고유 id
+            c.review_id AS reviewId,                -- 댓글이 작성된 리뷰의 고유 id
+            c.user_id AS userId,                    -- 댓글 작성 사용자 고유 id
+            u.nickname AS userNickname,             -- 댓글 작성 사용자 닉네임
+            c.content AS content,                   -- 작성된 댓글 내용
+            c.parent_comment_id AS parentCommentId, -- 작성된 댓글의 부모 id (대댓글인 경우 not null, 댓글인 경우 null)
+            c.created_at AS createdAt,              -- 댓글 작성일
+            c.is_deleted AS isDeleted               -- 댓글 삭제 여부 (soft delete 반영 컬럼)
+        FROM review_comments c           -- 리뷰에 등록된 댓글 정보 테이블
+        JOIN user u                      -- 사용자 정보 테이블
+        ON c.user_id = u.user_id
         WHERE
             c.review_id = #{reviewId}
         ORDER BY
             c.parent_comment_id ASC, c.created_at ASC
     </select>
 
-    <!-- 존재 여부 확인 -->
+    <!-- 사용자의 댓글 수정 삭제 전 -->
+    <!-- 해당 사용의 댓글인지 확인  -->
     <select id="existsByCommentIdAndUserId" resultType="boolean">
-        SELECT EXISTS (
-            SELECT 1
-            FROM review_comments
+        SELECT EXISTS (                 -- 내부 서브 쿼리 결과가 존재하면 1, 없으면 0
+            SELECT 1                    -- 존재 여부 체크
+            FROM review_comments        -- 리뷰에 등록된 댓글 정보 테이블
             WHERE comment_id = #{commentId}
               AND user_id = #{userId}
         )
@@ -52,15 +53,15 @@
     <!-- 댓글 삭제 -->
     <!-- Soft Delete -->
     <update id="deleteComment">
-        UPDATE review_comments
-        SET is_deleted = TRUE
+        UPDATE review_comments          -- 리뷰에 등록된 댓글 정보 테이블
+        SET is_deleted = TRUE           -- is_deleted -> 논리적 삭제를 하기 위한 컬럼
         WHERE comment_id = #{commentId}
     </update>
 
     <!-- 댓글 수정 -->
     <update id="updateComment">
-        UPDATE review_comments
-        SET content = #{content}
+        UPDATE review_comments          -- 리뷰에 등록된 댓글 정보 테이블
+        SET content = #{content}        -- 댓글에 작성된 내용을 수정
         WHERE comment_id = #{commentId}
     </update>
 

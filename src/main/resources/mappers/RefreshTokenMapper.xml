@@ -2,13 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.booklog.booklogbackend.mapper.RefreshTokenMapper">
 
+    <!-- 사용자 로그인 시 Refresh 토큰 저장 -->
     <insert id="save">
         INSERT INTO
             refresh_tokens (
-            user_id,
-            token_id,
-            token,
-            expiry_date
+            user_id,            -- 사용자 고유 id
+            token_id,           -- refresh 토큰 고유 UUID
+            token,              -- refresh 토큰 값
+            expiry_date         -- 만료일
         )
         VALUES (
                 #{userId},
@@ -18,17 +19,20 @@
                )
     </insert>
 
+    <!-- 토큰 id로 Refresh Token 조회 -->
     <select id="findTokenByTokenId" parameterType="string" resultType="string">
-        SELECT token
-        FROM refresh_tokens
+        SELECT token            -- Refresh Token
+        FROM refresh_tokens     -- Refresh Token 정보 테이블
         WHERE token_id = #{tokenId}
     </select>
 
+    <!-- token UUID에 매칭되는 refresh token 삭제 -->
     <delete id="deleteByTokenId" parameterType="string">
         DELETE FROM refresh_tokens
         WHERE token_id = #{tokenId}
     </delete>
 
+    <!-- userId에 매칭되는 refresh token 삭제 -->
     <delete id="deleteByUserId">
         DELETE FROM refresh_tokens
         WHERE user_id = #{userId}

@@ -32,15 +32,15 @@
     <!-- 리뷰가 1건 이상 등록되어 있는 도서 조회 -->
     <select id="selectBooksWithReviewStatics" resultType="com.booklog.booklogbackend.Model.response.BookWithReviewStaticsResponse">
         SELECT
-            b.book_id                   AS bookId,
-            b.isbn                      AS isbn,
-            b.book_title                AS title,
-            b.book_author               AS author,
-            b.book_img                  AS bookImg,
-            ROUND(AVG(r.rating), 1)     AS rating,
-            COUNT(r.review_id)          AS reviewCount
-        FROM books b
-        JOIN book_review r
+            b.book_id                   AS bookId,      -- 도서 고유 id
+            b.isbn                      AS isbn,        -- 도서 isbn
+            b.book_title                AS title,       -- 도서 제목
+            b.book_author               AS author,      -- 도서 저자
+            b.book_img                  AS bookImg,     -- 도서 썸네일 이미지 url
+            ROUND(AVG(r.rating), 1)     AS rating,      -- 도서에 등록된 모든 리뷰 평점의 평균값
+            COUNT(r.review_id)          AS reviewCount  -- 도서에 등록된 리뷰수
+        FROM books b                -- 도서 테이블
+        JOIN book_review r          -- 도서 리뷰 테이블
         ON b.book_id = r.book_id
         GROUP BY
             b.book_id, b.book_title, b.book_author, b.book_img
@@ -51,9 +51,9 @@
     <!-- 도서를 서재에 등록한 사용자의 total count -->
     <select id="countAllBookcaseStatsByBookId" resultType="int">
         SELECT
-            COUNT(*)
+            COUNT(*)        -- 특정 도서를 등록한 사용자 수의 총합
         FROM
-            bookcase
+            bookcase        -- 서재 테이블
         WHERE
             book_id = #{bookId}
     </select>
@@ -61,9 +61,9 @@
     <!-- 도서가 서재에 등록된 읽기 상태 별 count -->
     <select id="countBookcaseStatsByBookIdAndStatus" resultType="int">
         SELECT
-            COUNT(*)
+            COUNT(*)        -- 특정 도서를 등록한 사용자의 서재에서 특정 읽기 상태 별 사용자 수
         FROM
-            bookcase
+            bookcase        -- 서재 테이블
         WHERE
             book_id = #{bookId}
         AND reading_status = #{status}
@@ -73,9 +73,9 @@
     <select id="selectBookcaseReadingStatus"
             resultType="string">
         SELECT
-            reading_status
+            reading_status      -- 특정 도서에 대한 사용자의 읽기 상태 조회
         FROM
-            bookcase
+            bookcase            -- 서재 테이블
         WHERE
             user_id = #{userId}
           AND book_id = #{bookId}
@@ -84,50 +84,53 @@
     <!-- 도서 상세 조회 시 isbn으로 시스템에 등록된 도서 조회 -->
     <select id="findByIsbn" resultType="com.booklog.booklogbackend.Model.vo.BookVO">
         SELECT
-            book_id             AS bookId,
-            isbn                AS isbn,
-            book_title          AS bookTitle,
-            book_link           AS bookLink,
-            book_img            AS bookImg,
-            book_author         AS bookAuthor,
-            book_discount       AS bookDiscount,
-            book_publisher      AS bookPublisher,
-            book_pub_date       AS bookPubDate,
-            book_description    AS bookDescription
+            book_id             AS bookId,          -- 도서 고유 id
+            isbn                AS isbn,            -- 도서 isbn
+            book_title          AS bookTitle,       -- 도서 제목
+            book_link           AS bookLink,        -- 네이버 도서 상세 정보 페이지 링크
+            book_img            AS bookImg,         -- 도서 썸네일 이미지 url
+            book_author         AS bookAuthor,      -- 도서 저자
+            book_discount       AS bookDiscount,    -- 도서 가격
+            book_publisher      AS bookPublisher,   -- 도서 출판사
+            book_pub_date       AS bookPubDate,     -- 도서 출판일
+            book_description    AS bookDescription  -- 네이버 도서 줄거리
         FROM
-            books
+            books       -- 도서 정보 테이블
         WHERE
             isbn = #{isbn}
     </select>
 
+    <!-- 도서 고유 id로 도서 정보 조회 -->
     <select id="getBookByBookId" resultType="com.booklog.booklogbackend.Model.vo.BookVO">
         SELECT
-            book_id             AS bookId,
-            isbn                AS isbn,
-            book_title          AS bookTitle,
-            book_link           AS bookLink,
-            book_img            AS bookImg,
-            book_author         AS bookAuthor,
-            book_discount       AS bookDiscount,
-            book_publisher      AS bookPublisher,
-            book_pub_date       AS bookPubDate,
-            book_description    AS bookDescription
+            book_id             AS bookId,          -- 도서 고유 id
+            isbn                AS isbn,            -- 도서 isbn
+            book_title          AS bookTitle,       -- 도서 제목
+            book_link           AS bookLink,        -- 네이버 도서 상세 정보 페이지 링크
+            book_img            AS bookImg,         -- 도서 썸네일 이미지 url
+            book_author         AS bookAuthor,      -- 도서 저자
+            book_discount       AS bookDiscount,    -- 도서 가격
+            book_publisher      AS bookPublisher,   -- 도서 출판사
+            book_pub_date       AS bookPubDate,     -- 도서 출판일
+            book_description    AS bookDescription  -- 네이버 도서 줄거리
         FROM
-            books
+            books       -- 도서 정보 테이블
         WHERE
             book_id = #{bookId}
     </select>
 
+    <!-- 리뷰 작성 페이지 상단에 리뷰를 작성하려는 도서 정보를 -->
+    <!-- 표시하기 위해 도서 고유 id로 도서 정보 조회 -->
     <select id="getReviewRequestBookByBookId" resultType="com.booklog.booklogbackend.Model.response.BookForNewReviewResponse">
         SELECT
-            book_id             AS bookId,
-            isbn                AS isbn,
-            book_title          AS bookTitle,
-            book_img            AS bookImg,
-            book_author         AS bookAuthor,
-            book_publisher      AS bookPublisher,
+            book_id             AS bookId,          -- 도서 고유 id
+            isbn                AS isbn,            -- 도서 isbn
+            book_title          AS bookTitle,       -- 도서 제목
+            book_img            AS bookImg,         -- 도서 썸네일 이미지 url
+            book_author         AS bookAuthor,      -- 도서 저자
+            book_publisher      AS bookPublisher,   -- 도서 출판사
         FROM
-            books
+            books       -- 도서 정보 테이블
         WHERE
             book_id = #{bookId}
     </select>

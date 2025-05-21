@@ -2,18 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.booklog.booklogbackend.mapper.BookcaseMapper">
 
-    <!-- 1. 상태 조회 -->
+    <!-- 도서에 대한 사용자 읽기 상태 조회 -->
     <select id="selectBookcaseStatus" resultType="com.booklog.booklogbackend.Model.vo.BookcaseVO">
         SELECT
-            bookcase_id             AS bookcaseId,
-            user_id                 AS userId,
-            book_id                 AS bookId,
-            reading_status          AS readingStatus,
-            reading_started_at      AS readingStartedAt,
-            reading_finished_at     AS readingFinishedAt,
-            created_at              AS createdAt,
-            updated_at              AS updatedAt
-        FROM bookcase
+            bookcase_id             AS bookcaseId,          -- 서재 고유 id
+            user_id                 AS userId,              -- 사용자 고유 id
+            book_id                 AS bookId,              -- 도서 고유 id
+            reading_status          AS readingStatus,       -- 도서 읽기 상태
+            reading_started_at      AS readingStartedAt,    -- 독서 시작일
+            reading_finished_at     AS readingFinishedAt,   -- 독서 완료일
+            created_at              AS createdAt,           -- 서재 등록일
+            updated_at              AS updatedAt            -- 서재 내 수정일
+        FROM bookcase                                       -- 사용자 서재 테이블
         WHERE user_id = #{userId}
           AND book_id = #{bookId}
     </select>
@@ -21,13 +21,14 @@
     <!-- 서재의 도서 읽기 상태 변경 (독서 시작/독서 완료) -->
     <!-- 조건 분기 서비스에서 수행  값만 대입-->
     <update id="updateBookcaseStatus">
-        UPDATE bookcase
-        SET reading_status = #{readingStatus},
+        UPDATE bookcase                             -- 사용자 서재 테이블
+        SET reading_status = #{readingStatus},      -- 변경하려는 읽기 상태에 따라
             reading_started_at = CASE
-                WHEN #{readingStatus} = 'READING' AND reading_started_at IS NULL THEN CURRENT_TIMESTAMP
+                WHEN #{readingStatus} = 'READING'           -- '독서 중'으로 변경 시
+                AND reading_started_at IS NULL THEN CURRENT_TIMESTAMP
                 ELSE reading_started_at
             END,
-            reading_finished_at = CASE
+            reading_finished_at = CASE                      -- '독서 완료'로 변경 시
                 WHEN #{readingStatus} = 'COMPLETED' THEN CURRENT_TIMESTAMP
                 WHEN #{readingStatus} = 'READING' THEN NULL
                 ELSE reading_finished_at
@@ -61,16 +62,16 @@
     <!-- 사용자 서재 전체 조회 -->
     <select id="selectBookcaseByUserId" resultType="com.booklog.booklogbackend.Model.vo.BookcaseWithBookVO">
         SELECT
-            b.book_id               AS bookId,
-            b.book_title            AS bookTitle,
-            b.book_img              AS bookImg,
-            b.book_author           AS bookAuthor,
-            bc.bookcase_id          AS bookcaseId,
-            bc.reading_status       AS readingStatus,
-            bc.reading_started_at   AS readingStartedAt,
-            bc.reading_finished_at  AS readingFinishedAt
-        FROM bookcase bc
-        JOIN books b
+            b.book_id               AS bookId,              -- 도서 고유 id
+            b.book_title            AS bookTitle,           -- 도서 제목
+            b.book_img              AS bookImg,             -- 도서 썸네일 이미지
+            b.book_author           AS bookAuthor,          -- 도서 저자
+            bc.bookcase_id          AS bookcaseId,          -- 서재 고유 id
+            bc.reading_status       AS readingStatus,       --  서재에 등록된 도서의 읽기 상태
+            bc.reading_started_at   AS readingStartedAt,    -- 독서 시작일
+            bc.reading_finished_at  AS readingFinishedAt    -- 독서 완료일
+        FROM bookcase bc                    -- 서재 테이블
+        JOIN books b                        -- 도서 정보 테이블
             ON bc.book_id = b.book_id
         WHERE bc.user_id = #{userId}
         ORDER BY bc.updated_at DESC
@@ -87,14 +88,14 @@
 
     <!-- 읽기 상태 되돌리기 처리 -->
     <update id="updateReadingStatusWithDates">
-        UPDATE bookcase
-        SET reading_status = #{readingStatus},
-            reading_started_at = CASE
+        UPDATE bookcase     -- 서재 테이블
+        SET reading_status = #{readingStatus},                 -- 읽기 상태를 변경(이전 상태로 되돌리기)
+            reading_started_at = CASE                          -- 변경 하려는 읽기 상태에 따라서 독서 시작일 변경
                                      WHEN #{readingStatus} = 'READING' THEN CURRENT_TIMESTAMP
                                      WHEN #{readingStatus} = 'TO_READ' THEN NULL
                                      ELSE reading_started_at
                 END,
-            reading_finished_at = CASE
+            reading_finished_at = CASE                          -- 변경하려는 읽기 상태에 따라서 독서 완료일 변경
                                       WHEN #{readingStatus} IN ('READING', 'TO_READ') THEN NULL
                                       ELSE reading_finished_at
                 END,
@@ -105,15 +106,15 @@
     <!-- 서재 고유 id로 서재 조회 -->
     <select id="selectBookcaseById" resultType="com.booklog.booklogbackend.Model.vo.BookcaseVO">
         SELECT
-            bookcase_id             AS bookcaseId,
-            user_id                 AS userId,
-            book_id                 AS bookId,
-            reading_status          AS readingStatus,
-            reading_started_at      AS readingStartedAt,
-            reading_finished_at     AS readingFinishedAt,
-            created_at              AS createdAt,
-            updated_at              AS updatedAt
-        FROM bookcase
+            bookcase_id             AS bookcaseId,          -- 서재 고유 id
+            user_id                 AS userId,              -- 사용자 고유 id
+            book_id                 AS bookId,              -- 도서 고유 id
+            reading_status          AS readingStatus,       -- 읽기 상태
+            reading_started_at      AS readingStartedAt,    -- 독서 시작일
+            reading_finished_at     AS readingFinishedAt,   -- 독서완료일
+            created_at              AS createdAt,           -- 서재에 도서 등록일
+            updated_at              AS updatedAt            -- 서재에 등록된 도서 정보 변경일
+        FROM bookcase   -- 서재 테이블
         WHERE bookcase_id = #{bookcaseId}
     </select>
 

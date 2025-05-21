@@ -2,7 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.booklog.booklogbackend.mapper.ReportMapper">
 
-    <!-- 중복 신고 여부 확인 -->
+    <!-- 사용자가 신고 대상 리뷰에 대해 신고한 내역이 있는지 조회 -->
+    <!-- 사용자가 동일 리뷰에 대해서 한 번만 신고할 수 있다 -->
     <select id="existsByUserAndReview" resultType="boolean">
         SELECT COUNT(*) > 0
         FROM review_report              -- 리뷰 신고 테이블
@@ -10,7 +11,7 @@
           AND reporter_id = #{userId}
     </select>
 
-    <!-- 신고 등록 -->
+    <!-- 리뷰 신고 처리 -->
     <insert id="insertReport">
         INSERT INTO review_report (
             review_id,
@@ -28,39 +29,40 @@
     <!-- 내 신고 목록 조회 -->
     <select id="selectMyReports" resultType="com.booklog.booklogbackend.Model.response.ReviewReportResponse">
         SELECT
-            rr.report_id AS reportId,
-            rr.review_id AS reviewId,
-            r.review_title AS reviewTitle,
-            rr.reason_code AS reasonCode,
-            rr.reason,
-            rr.status,
-            rr.reported_at AS reportedAt,
-            rr.processed_at AS processedAt
-        FROM review_report rr
-                 JOIN book_review r ON rr.review_id = r.review_id
+            rr.report_id AS reportId,           -- 신고 내역 고유 id
+            rr.review_id AS reviewId,           -- 신고한 대상 리뷰 고유 id
+            r.review_title AS reviewTitle,      -- 신고한 리뷰의 제목
+            rr.reason_code AS reasonCode,       -- 리뷰 신고 사유 코드
+            rr.reason,                          -- 리뷰 신고 사유 상세
+            rr.status,                          -- 리뷰 신고 내역 관리자 처리 여부(대기/승인/반려)
+            rr.reported_at AS reportedAt,       -- 리뷰 신고 일자
+            rr.processed_at AS processedAt      -- 관리자의 신고 조치 일자
+        FROM review_report rr                       -- 리뷰 신고 정보 테이블
+        JOIN book_review r                          -- 도서 리뷰 테이블
+        ON rr.review_id = r.review_id
         WHERE rr.reporter_id = #{userId}
         ORDER BY rr.reported_at DESC
     </select>
 
     <!-- 수정 가능 여부 확인 -->
     <select id="isEditable" resultType="boolean">
-        SELECT COUNT(*) > 0
-        FROM review_report
+        SELECT COUNT(*) > 0                 -- 조건절 비교하여 true/false
+        FROM review_report                  -- 리뷰 신고 정보 테이블
         WHERE report_id = #{reportId}
           AND reporter_id = #{userId}
-          AND processed_at IS NULL
+          AND processed_at IS NULL          -- 신고 조치 일자가 null이면 아직 관리자가 처리하지 않은 신고 내역
     </select>
 
-    <!-- 신고 수정 -->
+    <!-- 자신의 신고한 리뷰의 신고 사유 수정 -->
     <update id="updateReport">
-        UPDATE review_report
-        SET reason_code = #{request.reasonCode},
-            reason = #{request.reason}
+        UPDATE review_report                -- 리뷰 신고 정보 테이블
+        SET reason_code = #{request.reasonCode},    -- 리뷰 신고 사유 코드
+            reason = #{request.reason}              -- 리뷰 신고 사유 상세
         WHERE report_id = #{reportId}
           AND reporter_id = #{userId}
     </update>
 
-    <!-- 신고 삭제 -->
+    <!-- 자신이 신고한 리뷰의 신고 취소 처리 -->
     <delete id="deleteReport">
         DELETE FROM review_report
         WHERE report_id = #{reportId}
