@@ -53,6 +53,7 @@ public class ReviewCommentServiceImpl implements ReviewCommentService {
                             .parentCommentId(vo.getParentCommentId())
                             .userNickname(vo.getUserNickname())
                             .content(vo.getContent())
+                            .isDeleted(vo.isDeleted())
                             .createdAt(vo.getCreatedAt())
                             .replies(new ArrayList<>())
                             .build()
@@ -79,6 +80,9 @@ public class ReviewCommentServiceImpl implements ReviewCommentService {
         if (!reviewCommentMapper.existsByCommentIdAndUserId(commentId, userId)) {
             throw new BadRequestException("삭제 권한이 없습니다.");
         }
+        if(reviewCommentMapper.isCommentAlreadyDeleted(commentId, userId)) {
+            throw new BadRequestException("이미 삭제된 댓글입니다.");
+        }
         reviewCommentMapper.deleteComment(commentId);
     }
 
@@ -92,6 +96,10 @@ public class ReviewCommentServiceImpl implements ReviewCommentService {
     public void updateComment(Long commentId, Long userId, String content) {
         if (!reviewCommentMapper.existsByCommentIdAndUserId(commentId, userId)) {
             throw new BadRequestException("수정 권한이 없습니다.");
+        }
+        // 삭제된 댓글인 경우에
+        if(reviewCommentMapper.isCommentAlreadyDeleted(commentId, userId)) {
+            reviewCommentMapper.updateDeletedComment(commentId, content);
         }
         reviewCommentMapper.updateComment(commentId, content);
     }
