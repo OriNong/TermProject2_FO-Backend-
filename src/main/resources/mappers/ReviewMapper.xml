@@ -132,8 +132,8 @@
         FROM book_review r                   -- 도서 리뷰 테이블
         JOIN books b                         -- 도서 정보 테이블
             ON r.book_id = b.book_id
-        WHERE
-            r.user_id = #{userId}
+        WHERE r.is_deleted = 0
+        AND r.user_id = #{userId}
         ORDER BY
             r.created_at DESC
     </select>
