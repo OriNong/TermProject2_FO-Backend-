@@ -16,6 +16,7 @@ public class ReviewCommentResponse {
     private Long parentCommentId;
     private String content;
     private String userNickname;
+    private boolean isDeleted;
     private LocalDateTime createdAt;
 
     // 대댓글 목록 (2depth용)
