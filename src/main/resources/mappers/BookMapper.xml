@@ -42,6 +42,7 @@
         FROM books b                -- 도서 테이블
         JOIN book_review r          -- 도서 리뷰 테이블
         ON b.book_id = r.book_id
+        WHERE r.is_deleted = 0                          -- 논리적 삭제 상태가 아닌 도서 목록
         GROUP BY
             b.book_id, b.book_title, b.book_author, b.book_img
         ORDER BY
