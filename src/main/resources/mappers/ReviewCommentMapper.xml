@@ -22,14 +22,14 @@
     <!-- 대댓글 포함 2 depth 구조 -->
     <select id="selectCommentsByReviewId" resultType="com.booklog.booklogbackend.Model.vo.ReviewCommentVO">
         SELECT
-            c.comment_id AS commentId,              -- 댓글 고유 id
-            c.review_id AS reviewId,                -- 댓글이 작성된 리뷰의 고유 id
-            c.user_id AS userId,                    -- 댓글 작성 사용자 고유 id
-            u.nickname AS userNickname,             -- 댓글 작성 사용자 닉네임
-            c.content AS content,                   -- 작성된 댓글 내용
-            c.parent_comment_id AS parentCommentId, -- 작성된 댓글의 부모 id (대댓글인 경우 not null, 댓글인 경우 null)
-            c.created_at AS createdAt,              -- 댓글 작성일
-            c.is_deleted AS isDeleted               -- 댓글 삭제 여부 (soft delete 반영 컬럼)
+            c.comment_id                AS commentId,           -- 댓글 고유 id
+            c.review_id                 AS reviewId,            -- 댓글이 작성된 리뷰의 고유 id
+            c.user_id                   AS userId,              -- 댓글 작성 사용자 고유 id
+            u.nickname                  AS userNickname,        -- 댓글 작성 사용자 닉네임
+            c.content                   AS content,             -- 작성된 댓글 내용
+            c.parent_comment_id         AS parentCommentId,     -- 작성된 댓글의 부모 id (대댓글인 경우 not null, 댓글인 경우 null)
+            c.created_at                AS createdAt,           -- 댓글 작성일
+            c.is_deleted                AS isDeleted            -- 댓글 삭제 여부 (soft delete 반영 컬럼)
         FROM review_comments c           -- 리뷰에 등록된 댓글 정보 테이블
         JOIN user u                      -- 사용자 정보 테이블
         ON c.user_id = u.user_id
@@ -58,10 +58,26 @@
         WHERE comment_id = #{commentId}
     </update>
 
+    <!-- 댓글 삭제 시 삭제 여부 판단 -->
+    <select id="isCommentAlreadyDeleted" resultType="boolean">
+        SELECT is_deleted
+        FROM review_comments
+        WHERE comment_id = #{commentId}
+          AND user_id = #{userId}
+    </select>
+
     <!-- 댓글 수정 -->
     <update id="updateComment">
         UPDATE review_comments          -- 리뷰에 등록된 댓글 정보 테이블
         SET content = #{content}        -- 댓글에 작성된 내용을 수정
+        WHERE comment_id = #{commentId}
+    </update>
+
+    <!-- 삭제된 댓글 수정 -->
+    <update id="updateDeletedComment">
+        UPDATE review_comments          -- 리뷰에 등록된 댓글 정보 테이블
+        SET content = #{content},       -- 댓글에 작성된 내용을 수정
+            is_deleted = 0              -- 논리적 삭제를 다시 되돌림
         WHERE comment_id = #{commentId}
     </update>
 
