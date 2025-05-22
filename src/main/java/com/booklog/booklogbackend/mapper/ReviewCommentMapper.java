@@ -20,8 +20,14 @@ public interface ReviewCommentMapper {
     // 댓글 삭제
     void deleteComment(@Param("commentId") Long commentId);
 
+    // 댓글 삭제 전 이미 삭제된 댓글인지 확인
+    boolean isCommentAlreadyDeleted(@Param("commentId") Long commentId, @Param("userId") Long userId);
+
     // 댓글 수정
     void updateComment(@Param("commentId") Long commentId, @Param("content") String content);
+
+    // 삭제된 댓글을 수정하는 경우 -> 댓글 수정 + is_deleted(삭제 여부)를 false로 변경
+    void updateDeletedComment(@Param("commentId") Long commentId, @Param("content") String content);
 
 
 }
