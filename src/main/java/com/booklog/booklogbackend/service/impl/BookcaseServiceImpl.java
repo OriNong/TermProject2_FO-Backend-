@@ -206,7 +206,7 @@ public class BookcaseServiceImpl implements BookcaseService {
      */
     @Override
     public ReviewIdByBookIdResponse getReviewByUserAndBook(Long userId, Long bookId) {
-        return bookReviewMapper.getReviewIdByBookAndUserId(bookId, userId);
+        return bookReviewMapper.getReviewIdByBookAndUserId(userId, bookId);
     }
 
     @Override
