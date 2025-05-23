@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -149,6 +148,11 @@ public class BookcaseServiceImpl implements BookcaseService {
         bookcaseMapper.updateReadingStatusWithDates(bookcaseId, newStatus.name());
     }
 
+    /**
+     * 서재에 등록된 도서 삭제 처리
+     * @param userId
+     * @param bookcaseId
+     */
     @Override
     public void deleteBookcase(Long userId, Long bookcaseId) {
         BookcaseVO current = bookcaseMapper.selectBookcaseById(bookcaseId);
@@ -202,18 +206,7 @@ public class BookcaseServiceImpl implements BookcaseService {
      */
     @Override
     public ReviewIdByBookIdResponse getReviewByUserAndBook(Long userId, Long bookId) {
-        boolean isReviewExist = bookReviewMapper.isReviewExist(userId, bookId);
-        if (isReviewExist) {
-            ReviewIdByBookIdResponse response = bookReviewMapper.getReviewIdByBookAndUserId(userId, bookId);
-            response.setExists("EXIST");
-            return response;
-        } else {
-            return ReviewIdByBookIdResponse.builder()
-                    .reviewId(null)
-                    .bookId(bookId)
-                    .exists("NOT_EXIST")
-                    .build();
-        }
+        return bookReviewMapper.getReviewIdByBookAndUserId(bookId, userId);
     }
 
     @Override

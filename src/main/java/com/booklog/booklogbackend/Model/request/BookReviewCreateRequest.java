@@ -3,9 +3,11 @@ package com.booklog.booklogbackend.Model.request;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 public class BookReviewCreateRequest {
 
     @NotNull(message = "도서 ID는 필수입니다.")

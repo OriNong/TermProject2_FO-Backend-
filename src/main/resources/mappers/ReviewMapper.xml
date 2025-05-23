@@ -48,13 +48,20 @@
         WHERE review_id = #{reviewId}
     </update>
 
-    <!-- 작성된 리뷰 삭제 -->
+    <!-- 작성된 리뷰 논리적 삭제 -->
     <update id="deleteReview">
         UPDATE book_review
         SET is_deleted = 1,
             updated_at = CURRENT_TIMESTAMP
         WHERE review_id = #{reviewId}
     </update>
+    
+    <!-- 작성된 리뷰 물리적 삭제 -->
+    <delete id="reviewPhysicalDeletion">
+        DELETE
+        FROM book_review
+        WHERE review_id = #{reviewId}
+    </delete>
 
     <!-- bookId에 매칭되는 userId가 있는지 조회 -->
     <!-- 사용자는 하나의 도서에 대해 하나의 리뷰만 작성 가능 -->
@@ -138,16 +145,48 @@
             r.created_at DESC
     </select>
 
-    <!-- bookId에 매칭되는 userId가 있는지 조회 -->
+    <!-- 사용자가 작성한 리뷰 중 관리자가 조치하여 삭제된 리뷰 조회 -->
+    <select id="selectMyReviewDeletedByAdmin" parameterType="long" resultType="com.booklog.booklogbackend.Model.response.MyReviewDeletedByAdminResponse">
+        SELECT
+            br.review_id                                            AS reviewId,            -- 리뷰 고유 id
+            b.book_id                                               AS bookId,              -- 리뷰 작성 도서 고유 id
+            b.book_title                                            AS bookTitle,           -- 리뷰 작성 도서 제목
+            b.book_img                                              AS bookImg,             -- 리뷰 작성 도서 썸네일 이미지 url
+            br.review_title                                         AS reviewTitle,         -- 리뷰 제목
+            br.review_content                                       AS reviewContent,       -- 리뷰 본문
+            br.created_at                                           AS createdAt,           -- 리뷰 작성일
+            GROUP_CONCAT(DISTINCT rr.reason SEPARATOR ', ')         AS reportReason,        -- 다수의 신고 사유 중 중복을 제거하고 모두 반환
+            DATE_FORMAT(MIN(rr.processed_at), '%Y-%m-%d %H:%i:%s')  AS processedAt          -- 관리자가 조치한 최초 일자(신고가 여러 건 일 수 있음)
+        FROM
+            book_review br                                      -- 도서 리뷰 정보 테이블
+        JOIN
+            books b ON br.book_id = b.book_id                   -- 도서 정보 테이블
+        JOIN
+            review_report rr ON br.review_id = rr.review_id     -- 리뷰 신고 내역 테이블
+        WHERE br.user_id = #{userId}                                                    -- 먼저 사용자 필터링(나머지 사용자의 리뷰는 걸러짐)
+          AND br.is_deleted = 1                                                         -- 특정된 사용자의 리뷰 중 삭제된 리뷰로 범위 필터링
+          AND rr.processed_at IS NOT NULL                                               -- NULL이면 관리자가 신고를 처리하지 않은 상태
+                                                                                        -- but, 반려 처리 시에도 Null이 아니기에 is_deleted 조건 검사 필수
+        GROUP BY
+            br.review_id, b.book_id, b.book_title, b.book_img,
+            br.review_title, br.review_content, br.rating,
+            br.likes_count, br.created_at
+        ORDER BY
+            MIN(rr.processed_at) DESC
+    </select>
+
+    <!-- bookId에 매칭되는 reviewId가 있는지 조회 -->
     <!-- 서재에서 독서 완료한 도서의 리뷰 작성 여부 판단 용도 -->
     <select id="getReviewIdByBookAndUserId" resultType="com.booklog.booklogbackend.Model.response.ReviewIdByBookIdResponse">
         SELECT
-            review_id AS reviewId,      -- 리뷰 고유 id
-            book_id AS bookId           -- 리뷰가 작성된 도서의 고유 id
-        FROM book_review        -- 도서 리뷰 테이블
-        WHERE user_id = #{userId}
-        AND book_id = #{bookId}
-        AND is_deleted = 0
+            review_id   AS reviewId,        -- 리뷰 고유 id
+            is_deleted  AS isDeleted        -- 리뷰 삭제 여부
+        FROM
+            book_review                     -- 도서 리뷰 정보 테이블
+        WHERE
+            book_id = #{bookId}
+          AND user_id = #{userId}
     </select>
+
 
 </mapper>

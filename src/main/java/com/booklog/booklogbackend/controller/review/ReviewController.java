@@ -2,10 +2,7 @@ package com.booklog.booklogbackend.controller.review;
 
 import com.booklog.booklogbackend.Model.request.BookReviewCreateRequest;
 import com.booklog.booklogbackend.Model.request.BookReviewUpdateRequest;
-import com.booklog.booklogbackend.Model.response.BookForNewReviewResponse;
-import com.booklog.booklogbackend.Model.response.BookReviewDetailResponse;
-import com.booklog.booklogbackend.Model.response.BookReviewResponse;
-import com.booklog.booklogbackend.Model.response.MyReviewResponse;
+import com.booklog.booklogbackend.Model.response.*;
 import com.booklog.booklogbackend.service.BookReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -121,6 +118,19 @@ public class ReviewController {
     ) {
         List<MyReviewResponse> myReviews = bookReviewService.getMyReviews(userId);
         return ResponseEntity.ok(myReviews);
+    }
+
+    /**
+     * 사용자가 작성한 리뷰 중 관리자가 신고 내역을 접수하고 승인하여 삭제된 리뷰 목록 조회
+     * @param userId : 로그인 사용자 id
+     * @return : 삭제된 리뷰 정보 + 관리자가 승인한 신고 사유 및 최초 승인 일자
+     */
+    @GetMapping("/my/admin/deleted")
+    public ResponseEntity<List<MyReviewDeletedByAdminResponse>> getMyReviewsAdminDeleted(
+            @AuthenticationPrincipal(expression = "userId") Long userId
+    ){
+        List<MyReviewDeletedByAdminResponse> myReviewsAdminDeleted = bookReviewService.getMyReviewsAdminDeleted(userId);
+        return ResponseEntity.ok(myReviewsAdminDeleted);
     }
 
 }

@@ -29,4 +29,6 @@ public interface BookReviewService {
     // 사용자가 작성한 리뷰 목록 조회
     List<MyReviewResponse> getMyReviews(Long userId);
 
+    // 사용자가 작성한 리뷰 중 관리자가 삭제한 리뷰 목록 조회
+    List<MyReviewDeletedByAdminResponse> getMyReviewsAdminDeleted(Long userId);
 }

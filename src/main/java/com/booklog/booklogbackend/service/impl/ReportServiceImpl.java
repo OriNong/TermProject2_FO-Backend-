@@ -19,6 +19,9 @@ public class ReportServiceImpl implements ReportService {
 
     private final ReportMapper reportMapper;
 
+    /**
+     * 리뷰 신고 등록
+     */
     @Override
     @Transactional
     public void createReport(Long userId, ReviewReportRequest request) {
@@ -30,11 +33,22 @@ public class ReportServiceImpl implements ReportService {
         reportMapper.insertReport(userId, request);
     }
 
+    /**
+     * 로그인 사용자의 리뷰 신고 내역 조회
+     * @param userId
+     * @return
+     */
     @Override
     public List<ReviewReportResponse> getMyReports(Long userId) {
         return reportMapper.selectMyReports(userId);
     }
 
+    /**
+     * 로그인 사용자의 신고 내역 수정
+     * @param userId
+     * @param reportId
+     * @param request
+     */
     @Override
     @Transactional
     public void updateMyReport(Long userId, Long reportId, @Valid ReportUpdateRequest request) {
@@ -45,6 +59,11 @@ public class ReportServiceImpl implements ReportService {
         reportMapper.updateReport(userId, reportId, request);
     }
 
+    /**
+     * 로그인 사용자가 리뷰 신고 취소
+     * @param userId
+     * @param reportId
+     */
     @Override
     @Transactional
     public void deleteMyReport(Long userId, Long reportId) {
